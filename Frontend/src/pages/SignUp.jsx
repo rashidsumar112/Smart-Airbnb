@@ -7,6 +7,7 @@ import { IoArrowBackCircle } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { authDataContext } from '../Context/AuthContext';
+import { userDataContext } from '../Context/UserContext';
 
 function SignUp() {
 //to navigate to different routes after signup like for login
@@ -19,6 +20,9 @@ let {serverURL}=useContext(authDataContext)
 let [name,setName]=useState("");
 let [email,setEmail]=useState("");
 let [password,setPassword]=useState("");
+
+////Here we set Data to SignUp Data
+ let {userData,setUserData}=useContext(userDataContext);
 
 
 
@@ -34,6 +38,9 @@ try{
     email,
     password
   },{withCredentials:true})
+  //set the fetched user data to userData state variable
+  setUserData(result.data);
+  navigate("/");
   console.log("Signup successful",result)
 } 
 catch(error){

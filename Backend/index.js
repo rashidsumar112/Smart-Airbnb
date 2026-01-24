@@ -14,6 +14,8 @@ import cors from "cors"
 //configure dotenv to access .env variables
 dotenv.config()
 
+import userRouter from "./routes/UserRoute.js"
+
 
 let port= process.env.PORT || 6000
 let app = express()
@@ -44,6 +46,11 @@ app.use(cors({
 app.use("/api/auth",authRouter)
 
 
+//routes for user which fech current user details
+//path compltete  http://localhost:8000/api/auth/user
+app.use("/api/user",userRouter)
+
+
 
 
 app.listen(port,()=>{
@@ -53,10 +60,3 @@ app.listen(port,()=>{
 
 
 
-//1:03:02 mints
-//git init
-// git add README.md
-// git commit -m "first commit"
-// git branch -M main
-// git remote add origin https://github.com/rashidsumar112/Smart-Airbnb.git
-// git push -u origin main

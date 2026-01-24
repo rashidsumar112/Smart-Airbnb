@@ -5,6 +5,7 @@ import { IoArrowBackCircle } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
 import { authDataContext } from '../Context/AuthContext';
 import axios from 'axios';
+import { userDataContext } from '../Context/UserContext';
 
 function Login() {
 
@@ -18,6 +19,11 @@ function Login() {
 // here we use useContext hook to get the server url from AuthContext
   let {serverURL} = useContext(authDataContext)
 
+//Here we set Data to Login
+let {userData,setUserData}=useContext(userDataContext);
+
+
+
 
 const handleLogin=async(e)=>{
 try{
@@ -29,6 +35,9 @@ try{
     email,
     password
   },{withCredentials:true})
+  //set the fetched user data to userData state variable
+  setUserData(result.data);
+  navigate("/");
   console.log("login successful",result)
 } 
 catch(error){
