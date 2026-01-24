@@ -1,6 +1,6 @@
 // Frontend/src/Components/Navbar.jsx
 
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import logo from '../assets/logo.png'
 import { FcSearch } from "react-icons/fc";
 import { GiHamburgerMenu } from "react-icons/gi";
@@ -16,6 +16,9 @@ import { SiHomeassistantcommunitystore } from "react-icons/si";
 import { IoBedOutline } from "react-icons/io5";
 import { FaTreeCity } from "react-icons/fa6";
 import { BiBuildingHouse } from "react-icons/bi";
+import { useNavigate } from 'react-router-dom';
+import { authDataContext } from '../Context/AuthContext';
+import axios from 'axios';
 
 
 
@@ -27,6 +30,34 @@ function Navbar() {
 
 let [showPopup, setShowPopup] = useState(false);
 
+//addings functionlity for login navigates
+
+let navigate = useNavigate();
+ let {serverURL}=useContext(authDataContext)
+//Logout function can be added here
+const handleLogout=()=>{
+  //code for logout logic will go here
+  try{
+    //example: clear user session, redirect to home page, etc.
+    let result=axios.post(serverURL + "/api/auth/logout",{}, {withCredentials:true})
+
+    console.log("logout successful",result)
+
+
+
+
+  }catch(error){
+    console.log("Error during logout",error)
+  }
+
+
+}
+
+
+
+
+
+
 
 
 
@@ -35,7 +66,7 @@ let [showPopup, setShowPopup] = useState(false);
 
     <div>
     {/* // 1st Navbar container */}
-   <div className='w-[100vw] min-h-[80px]  border-b-[]1px border-[#dcdcdcd] px-[20px] flex items-center justify-between'>
+   <div className='w-[100vw] min-h-[80px]  border-b-[]1px border-[#dcdcdcd] px-[20px] flex items-center justify-between md:px-[40px]'>
     {/* //Navbar content here */}
 
 
@@ -86,10 +117,10 @@ let [showPopup, setShowPopup] = useState(false);
 
 
       {/* //menu and profile popup can be implemented here */}
-      {showPopup && <div className='w-[220px] h-[250px] absolute bg-slate-50 top-[110%]  right-[10%] border-[1px] border-[#aaa9a9] z-10 rounded-lg'>
+      {showPopup && <div className='w-[220px] h-[250px] absolute bg-slate-50 top-[110%]  right-[3%] border-[1px] border-[#aaa9a9] z-10 rounded-lg md:right'>
         <ul className='w-[100%] h-[100%] text-[17px] flex items-start justify-around flex-col py-[10px]'>
-          <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer'>Login</li>
-          <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer'>Logout</li>
+          <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer' onClick={()=>navigate('/login')}>Login</li>
+          <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer' onClick={handleLogout}>Logout</li>
           <div className='w-[100%] h-[1px] bg-[#c1c0c0] '>
 
           </div>
@@ -107,14 +138,42 @@ let [showPopup, setShowPopup] = useState(false);
 
 
 
-<div className='w-[100%] h-[60px] flex items-center justify-center block md:hidden'>
+{/* //mobile view search bar and chat icon */}
 
-   <div  className='w-[35%] relative  ml-[10px] '>
-     <input type="text" className='w-[100%] px-[30px] py-[8px] border-[2px] border-[#bdbaba] outline-none overflow-auto  rounded-[30px] text-[17px]' placeholder='Any Where | Any Loaction | Any City'/>
-     <button className='absolute p-[10px] rounded-[50px] bg-[red] right-[3%] top-[4px]'><FcSearch className='w-[16px] h-[16px] text-[white]' />
-     </button>
-      </div>
-     </div>
+      <div className="w-[100%] h-[60px] flex items-center justify-center space-x-2 block md:hidden px-2">
+  {/* Search Input */}
+  <div className="flex-1 relative">
+    <input
+      type="text"
+      className="w-full px-[30px] py-[8px] border-[2px] border-[#bdbaba] outline-none rounded-[30px] text-[17px]"
+      placeholder="Any Where | Any Location | Any City"
+    />
+    <button className="absolute p-[10px] rounded-full bg-red-500 right-[3%] top-[4px]">
+      <FcSearch className="w-[16px] h-[16px] text-white" />
+    </button>
+  </div>
+
+  {/* Chat Icon */}
+  <div className="relative group cursor-pointer p-[10px] rounded-full hover:bg-[#ededed] transition flex items-center justify-center">
+    <FaRocketchat className="w-[22px] h-[22px] text-[#555]" />
+
+    {/* Tooltip */}
+    <div className="
+      absolute top-[110%] right-0
+      bg-black text-white text-[12px]
+      px-[10px] py-[6px] rounded-md
+      opacity-0 scale-95
+      group-hover:opacity-100 group-hover:scale-100
+      transition-all duration-200
+      whitespace-nowrap
+      pointer-events-none
+    ">
+      Hi 👋 How can I help you?
+    </div>
+  </div>
+</div>
+
+
 
 
 
