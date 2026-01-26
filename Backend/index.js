@@ -15,6 +15,7 @@ import cors from "cors"
 dotenv.config()
 
 import userRouter from "./routes/UserRoute.js"
+import listRouter from "./routes/listRoute.js"
 
 
 let port= process.env.PORT || 6000
@@ -49,6 +50,9 @@ app.use("/api/auth",authRouter)
 //routes for user which fech current user details
 //path compltete  http://localhost:8000/api/auth/user
 app.use("/api/user",userRouter)
+
+//Listings Route thruogh which user add property
+app.use("/api/listing",listRouter)
 
 
 

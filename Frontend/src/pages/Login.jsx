@@ -70,6 +70,7 @@ catch(error){
               <div className='w-[90%] flex items-start justify-start flex-col gap-[10px] relative '>
                 <label htmlFor="password" className='text-[20px]'>Password:</label>
                 <input type={ Show? "text" : "password"} id='password'className='w-[90%] h-[40px] border-[2px] border-[#555656] rounded-lg text-[18px] px-[20px]' required value={password} onChange={(e)=>setPassword(e.target.value)} />
+                {/* //this for password show and hide iocn show popup */}
                 {Show && <FaEye  className='w-[22px] h-[22px] absolute right-[12%] bottom-[10px] cursor-pointer' onClick={()=>setShow(prev=>!prev)} />}
                { !Show && < FaEyeSlash  className='w-[22px] h-[22px] absolute right-[12%] bottom-[10px] cursor-pointer' onClick={()=>setShow(prev=>!prev)}  />}
               </div>

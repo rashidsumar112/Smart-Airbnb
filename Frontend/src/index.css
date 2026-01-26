@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  @apply min-h-screen text-black;
+  background: linear-gradient(
+    135deg,
+    #d4e7ef,  /* sky-100 */
+    #d4e7ef,  /* sky-200 */
+    #d4e7ef   /* sky-300 */
+  );
+}

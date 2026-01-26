@@ -5,6 +5,10 @@ import axios from "axios"
 
 
 
+
+
+
+
 //here {children} is app.jsx component
 function UserContext({children}) {
 
@@ -20,7 +24,7 @@ const getCurrentUser= async () => {
     try{
         //this axios call will fetch the current logged in user data from backend
         //here withCredentials:true is used to send cookies along with the request for authentication
-       let result= await axios.get("Calling:",serverURL + "/api/user/currentuser", {withCredentials:true}) 
+       let result= await axios.get(serverURL + "/api/user/currentuser", {withCredentials:true}) 
        //set the fetched user data to userData state variable
          setUserData(result.data)
 

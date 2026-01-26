@@ -34,6 +34,7 @@ let [showPopup, setShowPopup] = useState(false);
 //addings functionlity for login navigates
 
 let navigate = useNavigate();
+//Here we gets Server Url from authDataContext
  let {serverURL}=useContext(authDataContext)
 
 let {userData,setUserData}=useContext(userDataContext)
