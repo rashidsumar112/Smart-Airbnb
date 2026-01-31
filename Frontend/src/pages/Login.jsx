@@ -17,7 +17,7 @@ function Login() {
   let [email,setEmail]=useState("");
   let [password,setPassword]=useState("");
 // here we use useContext hook to get the server url from AuthContext
-  let {serverURL} = useContext(authDataContext)
+  let {serverURL,loading,setLoading} = useContext(authDataContext)
 
 //Here we set Data to Login
 let {userData,setUserData}=useContext(userDataContext);
@@ -26,6 +26,8 @@ let {userData,setUserData}=useContext(userDataContext);
 
 
 const handleLogin=async(e)=>{
+
+  setLoading(true)
 try{
   //prevent the default form submission behavior
   e.preventDefault();
@@ -35,12 +37,14 @@ try{
     email,
     password
   },{withCredentials:true})
+  setLoading(false)
   //set the fetched user data to userData state variable
   setUserData(result.data);
   navigate("/");
   console.log("login successful",result)
 } 
 catch(error){
+  setLoading(false)
   console.log("Error during login",error)
 
 } 
@@ -75,7 +79,7 @@ catch(error){
                { !Show && < FaEyeSlash  className='w-[22px] h-[22px] absolute right-[12%] bottom-[10px] cursor-pointer' onClick={()=>setShow(prev=>!prev)}  />}
               </div>
 
-              <button className='px-[50px] py-[10px] bg-blue-600 text-[white] text-[18px] rounded-lg md:px-[100px] mt-[20px]'>Login</button>
+              <button className='px-[50px] py-[10px] bg-blue-600 text-[white] text-[18px] rounded-lg md:px-[100px] mt-[20px]'>{loading?"Loading....":"Login"}</button>
 
              <p className='text-[18px]'> If New User Click Here? <span className='text-[19px] text-[red] cursor-pointer' onClick={()=>navigate("/signup")}>SignUp</span> </p>
 

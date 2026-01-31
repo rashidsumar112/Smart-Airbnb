@@ -6,8 +6,8 @@ body {
   @apply min-h-screen text-black;
   background: linear-gradient(
     135deg,
-    #d4e7ef,  /* sky-100 */
-    #d4e7ef,  /* sky-200 */
-    #d4e7ef   /* sky-300 */
+    #aee884,  /* sky-100 */
+    #aee884,  /* sky-200 */
+    #aee884   /* sky-300 */
   );
 }

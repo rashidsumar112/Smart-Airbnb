@@ -27,6 +27,7 @@ import { userDataContext } from '../Context/UserContext.jsx';
 
 
 
+
 function Navbar() {
 
 let [showPopup, setShowPopup] = useState(false);
@@ -78,9 +79,9 @@ const handleLogout=()=>{
 
   return (
 
-    <div>
+    <div className=' fixed top-0 bg-[#aee884]'>
     {/* // 1st Navbar container */}
-   <div className='w-[100vw] min-h-[80px]  border-b-[]1px border-[#dcdcdcd] px-[20px] flex items-center justify-between md:px-[40px]'>
+   <div className='w-[100vw] min-h-[80px]  border-b-[1px] border-[#dcdcdcd] px-[20px] flex items-center justify-between md:px-[40px] '>
     {/* //Navbar content here */}
 
 
@@ -123,7 +124,7 @@ const handleLogout=()=>{
           </div>
       </div>
 
-        <span className='text-[18px] cursor-pointer rounded-[50px] hover:bg-[#ded9d9] px-[8px] py-[5px] hidden md:block'>List Your Home</span>
+        <span className='text-[18px] cursor-pointer rounded-[50px] hover:bg-[#ded9d9] px-[8px] py-[5px] hidden md:block' onClick={()=>navigate("/listpage1")}>List Your Home</span>
         <button className='px-[20px] py-[10px] flex items-center justify-center gap-[5px] border-[1px] border-[#8d8c8c] rounded-[50px] hover:shadow-lg' onClick={()=>setShowPopup(prev=>!prev)}>
           <span><GiHamburgerMenu  className='w-[20px] h-[20px]'/> </span>
           {userData==null && <span><CgProfile className='w-[23px] h-[23px]'/></span>}
@@ -135,12 +136,12 @@ const handleLogout=()=>{
       {/* //menu and profile popup can be implemented here */}
       {showPopup && <div className='w-[220px] h-[250px] absolute bg-slate-50 top-[110%]  right-[3%] border-[1px] border-[#aaa9a9] z-10 rounded-lg md:right'>
         <ul className='w-[100%] h-[100%] text-[17px] flex items-start justify-around flex-col py-[10px]'>
-          <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer' onClick={()=>navigate('/login')}>Login</li>
-          <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer' onClick={handleLogout}>Logout</li>
+         { !userData && <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer' onClick={()=>{navigate('/login');setShowPopup(false)}} >Login</li>}
+          {userData && <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer' onClick={()=>{handleLogout();setShowPopup(false)}}>Logout</li>}
           <div className='w-[100%] h-[1px] bg-[#c1c0c0] '>
 
           </div>
-          <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer'>List Your Home</li>
+          <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer' onClick={()=>{navigate("/listpage1");setShowPopup(false)}}>List Your Home</li>
           <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer'>My Listing</li>
           <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer'>Check Booking</li>
         </ul>
@@ -253,7 +254,7 @@ const handleLogout=()=>{
     </div>
 
     </div>  
-
+ 
 </div>
   )
 }

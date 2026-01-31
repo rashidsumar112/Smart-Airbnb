@@ -1,9 +1,12 @@
 import axios from 'axios'
-import React, { useState,Children, createContext, useContext } from 'react'
+import React, { useState,Children, createContext, useContext, useEffect } from 'react'
 import { authDataContext } from './AuthContext.jsx'
 export const listDataContext =createContext()
+import{useNavigate} from "react-router-dom"
 
 function ListContext({children}) {
+
+ let navigate = useNavigate()
 
  let [title,setTitle] = useState("")
  let [description,setDescription] = useState("")
@@ -17,15 +20,24 @@ let [backEndImage3,setbackEndImage3] = useState(null)
 let [city,setCity] = useState("")
 let [landmark,setLandMark] = useState("")
 let[category,setCategory] =useState("")
+//this for adding button
+let [adding,setAdding]=useState(false)
+
+//this for Get data for home page
+//here we pass[] mean there are may be many listing cards
+let [getlist,setGetList]=useState([])
 
 let {serverURL}=useContext(authDataContext)
 
 //form data for all above data
 
-
+//addings data or proerty listings Context
 const handleaddList = async()=>{
-    try{
-let formData = new formData()
+  //this for adding button that show ..... while data adding
+  setAdding(true)
+
+try{
+let formData = new FormData()
 formData.append("title",title)
 formData.append("image1",backEndImage1)
 formData.append("image2",backEndImage2)
@@ -37,16 +49,54 @@ formData.append("landmark",landmark)
 formData.append("category",category)
 
 
-let result= await axios.post(serverURL+ "/api/listing/add",formData,{withCredentials:true})
+let result= await axios.post(serverURL + "/api/listing/add",formData,{withCredentials:true})
+setAdding(false)
 console.log(result)
+
+navigate("/")
+//here we clear form after adding list aand move to home
+  setTitle("")
+  setDescription("")
+  setbackEndImage1(null)
+   setbackEndImage2(null)
+    setbackEndImage3(null)
+    setbackEndImage1(null)
+    setbackEndImage2(null)
+    setbackEndImage3(null)
+    setRent("")
+    setCity("")
+    setLandMark("")
+    setCategory("")
+    
 
     }
     catch(error){
-
+    
+        setAdding(false)
         console.log(error)
 
     }
 }
+
+
+///Getings listing Property to show that on Home for that Host
+const getListing=async ()=>{
+  try{
+    let result =await axios.get(serverURL + "/api/listing/get",{withCredentials:true})
+    setGetList(result.data)
+
+
+  }
+  catch(error){
+    console.log(error)
+
+  }
+}
+useEffect(()=>{
+  getListing()
+
+},[adding])
+
 
 
 
@@ -65,7 +115,10 @@ rent,setRent,
 city,setCity,
 landmark,setLandMark,
 category,setCategory,
-handleaddList
+handleaddList,
+adding,setAdding,
+getlist,setGetList,
+getListing
 
 
 

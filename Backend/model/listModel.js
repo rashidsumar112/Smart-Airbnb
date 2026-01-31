@@ -37,16 +37,15 @@ const listingSchema= new mongoose.Schema({
 
     },
     rent:{
-        //Reference to Booking Model
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"Booking"
+        type:Number,
+        required:true
     },
   city:{
     type:String,
     required:true
 
   },
-   landMark:{
+   landmark:{
     type:String,
     required:true
 

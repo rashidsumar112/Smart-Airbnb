@@ -1,7 +1,7 @@
 import express from "express";
 import AuthUser from "../middleware/AuthUser.js";
 import upload from "../middleware/multer.js";
-import { addListing } from "../controllers/ListingController.js";
+import { addListing, getList } from "../controllers/ListingController.js";
 
 let listRouter=express.Router()
 //here we fields because we upload multiples images
@@ -11,6 +11,10 @@ listRouter.post("/add",AuthUser,upload.fields([
    {name:"image2",maxCount:1},
    {name:"image3",maxCount:1}
 ]),addListing)
+
+
+//getlist Route
+listRouter.get("/get",getList)
 
 
 export default listRouter

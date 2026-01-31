@@ -15,7 +15,7 @@ function SignUp() {
 //this for toggling eye icon for show hide password
 let [Show,setShow] = useState(false);
 //hHere we use useContext hook to get the server url from AuthContext
-let {serverURL}=useContext(authDataContext)
+let {serverURL,loading,setLoading}=useContext(authDataContext)
 //state variables to store form data 
 let [name,setName]=useState("");
 let [email,setEmail]=useState("");
@@ -28,6 +28,7 @@ let [password,setPassword]=useState("");
 
 //here we create the handleSignup function to handle the signup logic like form validation api call etc
 const handleSignUp=async(e)=>{
+  setLoading(true)
 try{
   //prevent the default form submission behavior
   e.preventDefault();
@@ -38,12 +39,14 @@ try{
     email,
     password
   },{withCredentials:true})
+  setLoading(false)
   //set the fetched user data to userData state variable
   setUserData(result.data);
   navigate("/");
   console.log("Signup successful",result)
 } 
 catch(error){
+  setLoading(false)
   console.log("Error during signup",error)
 
 } 
@@ -80,7 +83,7 @@ catch(error){
            { !Show && < FaEyeSlash  className='w-[22px] h-[22px] absolute right-[12%] bottom-[10px] cursor-pointer' onClick={()=>setShow(prev=>!prev)}  />}
           </div>
 
-          <button className='px-[50px] py-[10px] bg-blue-600 text-[white] text-[18px] rounded-lg md:px-[100px] mt-[20px]'>Sign Up</button>
+          <button className='px-[50px] py-[10px] bg-blue-600 text-[white] text-[18px] rounded-lg md:px-[100px] mt-[20px]' disabled={loading}>{loading?"Loading...":"SignUp"}</button>
 
         <p className='text-[18px]'>Already have Account? <span className='text-[19px] text-[red] cursor-pointer' onClick={()=>navigate("/login")}>Login</span> </p>
 
