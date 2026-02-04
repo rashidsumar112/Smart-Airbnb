@@ -72,12 +72,29 @@ const handleImage3 = (e)=>{
 
 
   return (
-    <div className='w-[100%] h-[100vh] bg-white flex items-center justify-center relative overflow-auto'>
+    <div className='w-[100%] h-[100vh] bg-white flex items-center justify-center relative overflow-auto flex-col'>
+
+
+
+           <div className='w-[50%] h-[10%]  p-[5px] flex items-center justify-center text-[30px] rounded-md text-[#613b3b] font-semibold md:w-[600px] mr-[80px] mb-[10px]   hidden md:block'>
+            Add Your Listing
+
+
+
+
+        </div>
+
+
         <form action="" className='max-w-[800px] w-[80%] h-[400px] flex items-center justify-start  flex-col  md:items-start gap-[10px] overflow-auto mt-[30px]' onSubmit={(e)=>{e.preventDefault()
           navigate("/listpage2")}
         }>
             <div className='w-[50px] h-[50px] bg-red-700 cursor-pointer justify-center absolute top-[5%] left-[20px] rounded-[50%] flex items-center justify-center' onClick={()=>navigate("/")}><IoArrowBackCircle  className='w-[30px] h-[30px] text-[white]' />
             </div>
+
+
+            
+
+
             <div className='w-[200px] h-[50px] text-[20px] bg-red-700 text-[white] flex items-center justify-center rounded-[30px] absolute top-[5%] right-[10px] shadow-lg'>
               SetUp Your Home  
             </div>

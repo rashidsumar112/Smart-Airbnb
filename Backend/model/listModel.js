@@ -65,5 +65,5 @@ const listingSchema= new mongoose.Schema({
     //it means mongoose will automatically manage createdAt and updatedAt properties on your documents.
     timestamps:true,})
 
-const Listing= mongoose.model("Listings",listingSchema);
+const Listing= mongoose.model("Listing",listingSchema);
 export default Listing;

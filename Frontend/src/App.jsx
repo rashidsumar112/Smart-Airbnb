@@ -7,6 +7,8 @@ import ListPage1 from './pages/ListPage1'
 import ListPage2 from './pages/ListPage2'
 import ListPage3 from './pages/ListPage3'
 import { userDataContext } from './Context/UserContext'
+import MyListing from './pages/MyListing'
+import ViewCard from './pages/ViewCard'
 
 function App() {
 let {userData} = useContext(userDataContext)
@@ -23,9 +25,15 @@ let {userData} = useContext(userDataContext)
         <Route path='/listpage1' 
         element={ userData !=null ? <ListPage1/>:<Navigate to={"/login"}/> }/>
          <Route path='/listpage2' 
-          element={userData !=null ? <ListPage2/>:<Navigate to={"/login"}/>} />
+          element={userData !=null ? <ListPage2/>:<Navigate to={"/"}/>} />
          <Route path='/listpage3' 
-         element={userData !=null ? <ListPage3/>:<Navigate to={"/login"}/>} />
+         element={userData !=null ? <ListPage3/>:<Navigate to={"/"}/>} />
+
+         <Route path='/mylisting' 
+         element={userData !=null ? <MyListing/>:<Navigate to={"/"}/>} />
+
+         <Route path='/viewcard' 
+         element={userData !=null ? <ViewCard/>:<Navigate to={"/"}/>} />
 
       </Routes>
       </>

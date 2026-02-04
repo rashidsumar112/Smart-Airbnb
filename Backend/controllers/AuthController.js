@@ -2,6 +2,7 @@
 import genToken from "../config/token.js";
 import User from "../model/userModel.js";
 import bcrypt from "bcryptjs";
+import Listing from "../model/listModel.js";
 
 
 
@@ -69,8 +70,7 @@ export const login= async(req,res)=>{
     
     let {email,password}= req.body;
     //if check user  exists
-    let user=await User.findOne({email
-    });
+    let user=await User.findOne({email}).populate("listing","title image1 image2 image3 description rent category city landmark")
 
 
     // if user does not exist
@@ -97,7 +97,7 @@ export const login= async(req,res)=>{
     })
     //return response to user
    
-    return res.status(201).json(user)
+    return res.status(200).json(user)
 
     }
     catch(error){

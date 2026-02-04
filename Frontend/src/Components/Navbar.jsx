@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import { authDataContext } from '../Context/AuthContext';
 import axios from 'axios';
 import { userDataContext } from '../Context/UserContext.jsx';
+import { listDataContext } from '../Context/ListContext.jsx';
 
 
 
@@ -29,6 +30,8 @@ import { userDataContext } from '../Context/UserContext.jsx';
 
 
 function Navbar() {
+//For category set
+  let [cate,setCate]=useState()
 
 let [showPopup, setShowPopup] = useState(false);
 
@@ -39,6 +42,7 @@ let navigate = useNavigate();
  let {serverURL}=useContext(authDataContext)
 
 let {userData,setUserData}=useContext(userDataContext)
+let{getlist,setGetList,newgetlist,setnewGetList}=useContext(listDataContext)
 
 
 
@@ -68,6 +72,18 @@ const handleLogout=()=>{
 
 }
 
+const handleCategory = (category)=>{
+  setCate(category)
+  if(category=="trending"){
+    setnewGetList(getlist)
+  }
+  else{
+  setnewGetList(getlist.filter((list)=>list.category==category
+  ))
+}
+
+
+}
 
 
 
@@ -134,7 +150,7 @@ const handleLogout=()=>{
 
 
       {/* //menu and profile popup can be implemented here */}
-      {showPopup && <div className='w-[220px] h-[250px] absolute bg-slate-50 top-[110%]  right-[3%] border-[1px] border-[#aaa9a9] z-10 rounded-lg md:right'>
+      {showPopup && <div className='w-[220px] h-[250px] absolute bg-slate-50 top-[110%]  right-[3%] border-[1px] border-[#aaa9a9] z-10 rounded-lg md:right md:right-[0%]'>
         <ul className='w-[100%] h-[100%] text-[17px] flex items-start justify-around flex-col py-[10px]'>
          { !userData && <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer' onClick={()=>{navigate('/login');setShowPopup(false)}} >Login</li>}
           {userData && <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer' onClick={()=>{handleLogout();setShowPopup(false)}}>Logout</li>}
@@ -142,7 +158,7 @@ const handleLogout=()=>{
 
           </div>
           <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer' onClick={()=>{navigate("/listpage1");setShowPopup(false)}}>List Your Home</li>
-          <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer'>My Listing</li>
+          <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer'  onClick={()=>{navigate("/mylisting");setShowPopup(false)}}>My Listing</li>
           <li className='w-[100%] px-[15px] py-[10px] hover:bg-[#f4f3f3] cursor-pointer'>Check Booking</li>
         </ul>
 
@@ -198,56 +214,56 @@ const handleLogout=()=>{
 
 {/* //2nd navbar */}
    <div className='w-[100vw] h-[85px] bg-white flex items-center justify-start cursor-pointer  gap-[30px] overflow-auto md:justify-center px-[15px]'>
-    <div className='flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px]'>
+    <div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="trending"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>{handleCategory("trending");setCate("")}}>
      
      <MdOutlineWhatshot  className='w-[30px] h-[30px] text-black'/>
      <h3>Trending</h3>
     </div>
 
-<div className='flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px]'>
+<div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="villa"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>handleCategory("villa")}>
      
      <GiFamilyHouse  className='w-[30px] h-[30px] text-black'/>
      <h3>Villa</h3>
     </div>
 
-    <div className='flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px]'>
+    <div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="farmhouse"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>handleCategory("farmhouse")}>
      
      <FaTreeCity 
   className='w-[30px] h-[30px] text-black'/>
      <h3>FarmHouse</h3>
     </div>
 
-    <div className='flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px]'>
+    <div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="poolhouse"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>handleCategory("poolhouse")}>
      
      <MdOutlinePool  className='w-[30px] h-[30px] text-black'/>
      <h3>PoolHouse</h3>
     </div>
 
-    <div className='flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px]'>
+    <div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="rooms"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>handleCategory("rooms")}>
      
      <MdBedroomParent   className='w-[30px] h-[30px] text-black'/>
      <h3>Rooms</h3>
     </div>
 
-    <div className='flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px]'>
+    <div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="flat"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>handleCategory("flat")}>
      
      <BiBuildingHouse   className='w-[30px] h-[30px] text-black'/>
      <h3>Flat</h3>
     </div>
 
-    <div className='flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px]'>
+    <div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="pg"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>handleCategory("pg")}>
      
      <IoBedOutline  className='w-[30px] h-[30px] text-black'/>
      <h3>PG</h3>
     </div>
 
-    <div className='flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px]'>
+    <div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="cabin"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>handleCategory("cabin")}>
      
      <GiWoodCabin  className='w-[30px] h-[30px] text-black'/>
      <h3>Cabin</h3>
     </div>
 
-    <div className='flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px]'>
+    <div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="shops"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>handleCategory("shops")}>
      
      < SiHomeassistantcommunitystore   className='w-[30px] h-[30px] text-black'/>
      <h3>Shops</h3>

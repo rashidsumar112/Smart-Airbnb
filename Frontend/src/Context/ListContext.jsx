@@ -26,6 +26,9 @@ let [adding,setAdding]=useState(false)
 //this for Get data for home page
 //here we pass[] mean there are may be many listing cards
 let [getlist,setGetList]=useState([])
+let [newgetlist,setnewGetList]=useState([])
+
+let [cardDetails,setCardDetails]=useState(null)
 
 let {serverURL}=useContext(authDataContext)
 
@@ -78,12 +81,32 @@ navigate("/")
     }
 }
 
+//For Find Listing handle
+const handleViewCard= async (id) => {
+
+  try {
+    let result = await axios.get(serverURL + `/api/listing/findlistingByid/${id}`,{withCredentials:true})
+    
+    console.log(result.data)
+    setCardDetails(result.data)
+    navigate("/viewcard")
+
+  }
+  catch(error){
+    console.log(error)
+
+  }
+}
+
+
+
 
 ///Getings listing Property to show that on Home for that Host
 const getListing=async ()=>{
   try{
     let result =await axios.get(serverURL + "/api/listing/get",{withCredentials:true})
     setGetList(result.data)
+    setnewGetList(result.data)
 
 
   }
@@ -118,7 +141,10 @@ category,setCategory,
 handleaddList,
 adding,setAdding,
 getlist,setGetList,
-getListing
+getListing,
+newgetlist,setnewGetList,
+handleViewCard,
+cardDetails,setCardDetails
 
 
 

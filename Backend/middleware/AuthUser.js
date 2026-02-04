@@ -1,6 +1,8 @@
 //Here we make Functionality to implement User Authentication Middleware
 //This Middleware will be used to protect routes that require user to be authenticated
 //like accessing user profile booking history etc
+
+//this use for the getings Current user data
 import jwt from "jsonwebtoken";
 
 

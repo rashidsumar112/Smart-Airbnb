@@ -26,11 +26,12 @@ const getCurrentUser= async () => {
         //here withCredentials:true is used to send cookies along with the request for authentication
        let result= await axios.get(serverURL + "/api/user/currentuser", {withCredentials:true}) 
        //set the fetched user data to userData state variable
+       console.log("API Response:", result.data)
          setUserData(result.data)
 
     }catch(error){
         setUserData(null)
-        console.log("Error fetching current user data",error)
+        console.log("Error fetching current user data",error.response?.data || error.message)
     }
 }
  
@@ -43,8 +44,8 @@ useEffect(()=>{
     getCurrentUser()
 
     //[] means this useEffect will run only once when the page loads
-},[])
-
+},[serverURL])
+//changes above
 
 //value to be provided to all children components like app.jsx
 let value={
