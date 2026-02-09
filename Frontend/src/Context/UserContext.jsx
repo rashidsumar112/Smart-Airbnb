@@ -50,7 +50,8 @@ useEffect(()=>{
 //value to be provided to all children components like app.jsx
 let value={
     userData,
-    setUserData
+    setUserData,
+    getCurrentUser
 }
 
 

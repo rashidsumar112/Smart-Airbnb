@@ -20,8 +20,12 @@ let [backEndImage3,setbackEndImage3] = useState(null)
 let [city,setCity] = useState("")
 let [landmark,setLandMark] = useState("")
 let[category,setCategory] =useState("")
+
+
 //this for adding button
 let [adding,setAdding]=useState(false)
+let [updating,setUpdating]=useState(false)
+let [deleting,setDeleting]=useState(false)
 
 //this for Get data for home page
 //here we pass[] mean there are may be many listing cards
@@ -42,9 +46,10 @@ const handleaddList = async()=>{
 try{
 let formData = new FormData()
 formData.append("title",title)
-formData.append("image1",backEndImage1)
-formData.append("image2",backEndImage2)
-formData.append("image3",backEndImage3)
+
+if(backEndImage1){formData.append("image1",backEndImage1)}
+if(backEndImage2){formData.append("image2",backEndImage2)}
+if(backEndImage3){formData.append("image3",backEndImage3)}
 formData.append("description",description)
 formData.append("rent",rent)
 formData.append("city",city)
@@ -118,9 +123,11 @@ const getListing=async ()=>{
 useEffect(()=>{
   getListing()
 
-},[adding])
+},[adding,updating,deleting])
 
-
+// useEffect(()=>{
+//   handleViewCard()
+// },[updating])
 
 
 let value={
@@ -144,7 +151,9 @@ getlist,setGetList,
 getListing,
 newgetlist,setnewGetList,
 handleViewCard,
-cardDetails,setCardDetails
+cardDetails,setCardDetails,
+updating,setUpdating,
+deleting,setDeleting
 
 
 

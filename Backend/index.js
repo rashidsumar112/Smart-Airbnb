@@ -16,6 +16,7 @@ dotenv.config()
 
 import userRouter from "./routes/UserRoute.js"
 import listRouter from "./routes/listRoute.js"
+import bookRouter from "./routes/bookRoute.js"
 
 
 let port= process.env.PORT || 6000
@@ -53,6 +54,9 @@ app.use("/api/user",userRouter)
 
 //Listings Route thruogh which user add property
 app.use("/api/listing",listRouter)
+
+//booking route
+app.use("/api/booking",bookRouter)
 
 
 

@@ -94,7 +94,7 @@ let {category,setCategory}=useContext(listDataContext)
                   
                 </div>
 
-          <button className='px-[50px] py-[10px] bg-blue-600 text-[white] text-[18px] rounded-lg md:px-[80px] mt-[20px] absolute right-[1%] bottom-[5%]' disabled={!category} onClick={()=>navigate("/listpage3")}>Next</button>
+          <button className=' text-nowrap px-[50px] py-[10px] bg-blue-600 text-[white] text-[18px] rounded-lg md:px-[80px] mt-[20px] absolute right-[1%] bottom-[5%]' disabled={!category} onClick={()=>navigate("/listpage3")}>Next</button>
 
                  
 

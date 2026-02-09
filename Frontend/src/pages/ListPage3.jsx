@@ -77,7 +77,7 @@ adding,setAdding
         </div>
 
 
-        <button className='px-[50px] py-[10px] bg-blue-600 text-[white] text-[18px] rounded-lg md:px-[80px] mt-[20px] absolute right-[30%] bottom-[5%]' onClick={handleaddList} disabled={adding}>{adding?"Adding...":"Add Listing"}</button>
+        <button className='px-[50px] py-[10px] bg-blue-600 text-[white] text-[18px] rounded-lg md:px-[80px] mt-[20px] absolute right-[30%] bottom-[5%] text-nowrap' onClick={handleaddList} disabled={adding}>{adding?"Adding...":"Add Listing"}</button>
         
         
         

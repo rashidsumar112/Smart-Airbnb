@@ -9,6 +9,7 @@ import ListPage3 from './pages/ListPage3'
 import { userDataContext } from './Context/UserContext'
 import MyListing from './pages/MyListing'
 import ViewCard from './pages/ViewCard'
+import MyBooking from './pages/MyBooking'
 
 function App() {
 let {userData} = useContext(userDataContext)
@@ -34,6 +35,9 @@ let {userData} = useContext(userDataContext)
 
          <Route path='/viewcard' 
          element={userData !=null ? <ViewCard/>:<Navigate to={"/"}/>} />
+
+         <Route path='/mybooking' 
+         element={userData !=null ? <MyBooking/>:<Navigate to={"/"}/>} />
 
       </Routes>
       </>

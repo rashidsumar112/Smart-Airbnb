@@ -110,6 +110,9 @@ export const findListing=async(req,res)=>{
 
 export const updateListing=async(req,res)=>{
     try{
+        let image1;
+        let image2;
+        let image3;
 
 
     console.log("USER ID:", req.userId);
@@ -123,14 +126,15 @@ export const updateListing=async(req,res)=>{
 
     //my changes
     console.log("Starting image uploads to Cloudinary...");
-    let image1= await uploadOnCloudinary(req.files.image1[0].path)
-    console.log("Image 1 uploaded:", image1);
-    
-    let image2= await uploadOnCloudinary(req.files.image2[0].path)
-    console.log("Image 2 uploaded:", image2);
-    
-    let image3= await uploadOnCloudinary(req.files.image3[0].path)
-    console.log("Image 3 uploaded:", image3);
+    if(req.files.image1){
+     image1= await uploadOnCloudinary(req.files.image1[0].path)
+    console.log("Image 1 uploaded:", image1);}
+     if(req.files.image2){
+    image2= await uploadOnCloudinary(req.files.image2[0].path)
+    console.log("Image 2 uploaded:", image2);}
+     if(req.files.image3){
+    image3= await uploadOnCloudinary(req.files.image3[0].path)
+    console.log("Image 3 uploaded:", image3);}
 
     // Check if all images were uploaded successfully
     if (!image1 || !image2 || !image3) {
@@ -157,6 +161,23 @@ let listing=await Listing.findByIdAndUpdate(id,{
     catch(error){
         return res.status(500).json({message:"Update Error"})
         console.log(error)
+
+    }
+}
+
+export const deleteListing=async(req,res)=>{
+    try{
+        let {id}=req.params
+        let listing=await Listing.findByIdAndDelete(id)
+        let user =await User.findByIdAndUpdate(listing.host,{$pull:{listing:listing._id}},{new:true})
+        if(!user){
+            return res.status(404).json({message:"User is not Find"})
+        }
+        return res.status(201).json({message:"Listing Deleted"})
+
+    }
+    catch(error){
+      return res.status(500).json({message:`Error in Deleting Listing ${error}`})  
 
     }
 }
