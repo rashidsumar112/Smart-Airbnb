@@ -10,12 +10,15 @@ import { userDataContext } from './Context/UserContext'
 import MyListing from './pages/MyListing'
 import ViewCard from './pages/ViewCard'
 import MyBooking from './pages/MyBooking'
+import Booked from './pages/Booked'
+import {ToastContainer,toast} from 'react-toastify'
 
 function App() {
 let {userData} = useContext(userDataContext)
 
   return (
       <>
+      <ToastContainer />
       {/* //define all your routes here */}
       <Routes>
         {/* // Here we import all the components */}
@@ -38,6 +41,8 @@ let {userData} = useContext(userDataContext)
 
          <Route path='/mybooking' 
          element={userData !=null ? <MyBooking/>:<Navigate to={"/"}/>} />
+         <Route path='/booked' 
+         element={userData !=null ? <Booked/>:<Navigate to={"/"}/>} />
 
       </Routes>
       </>

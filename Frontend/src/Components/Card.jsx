@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useContext } from 'react'
 import { userDataContext } from '../Context/UserContext'
 import { listDataContext } from '../Context/ListContext'
 import { useNavigate } from 'react-router-dom'
 import {FaStar} from "react-icons/fa";
 import {GiConfirmed} from "react-icons/gi";
+import { BookingDataContext } from '../Context/BookingContext'
 
 
 
@@ -13,6 +14,8 @@ function Card({title,landmark,image1,image2,image3,rent,city,id,ratings,isBooked
 
 let {userData}=useContext(userDataContext)
 let {handleViewCard}=useContext(listDataContext)
+let [popUp,setPopUp]=useState(false)
+let {cancleBooking}=useContext(BookingDataContext)
 
 //this function is for make card clickable
 
@@ -38,9 +41,31 @@ const handleClick=()=>{
 
 {/* //this for showing booked on card */}
 { isBooked && <div className='text-[green] bg-[white] rounded-lg absolute flex items-center justify-center right-1 top-1 gap-[5px] p-[5px]'><GiConfirmed className='w-[20px] h-[20px] text-[green]' />Booked</div>}
+ {/* isBooked && host == userData?._id && */}
 
 {/* for showing Cancle booking message */}
-{ isBooked && host== userData?._id && <div className='text-[red] bg-[white] rounded-lg absolute flex items-center justify-center right-1 top-[50px] gap-[5px] p-[5px]'><p className='w-[20px] h-[20px] text-[red] font-semibold' >X</p>Cancled Booking</div>}
+{ isBooked && host == userData?._id && <div className='text-[red] bg-[white] rounded-lg absolute flex items-center justify-center right-1 top-[50px] gap-[5px] p-[5px]' onClick={()=>setPopUp(true)}><p className='w-[20px] h-[20px] text-[red] font-semibold' >X</p>Cancled Booking</div>}
+
+
+
+
+{popUp &&
+
+<div className='w-[300px] h-[100px] bg-[#ffffffdf] absolute top-[110px] left-[13px] rounded-lg'>
+  <div className='w-[100%] h-[50%] text-[#2e2d2d] flex items-start justify-center rounded-lg overflow-auto text-[20px]  p-[10px]'>Booking Cancle!</div>
+
+
+  {/* onClick={()=>{
+      cancleBooking(bookingId);setPopUp(false)}} */}
+
+  <div className='w-[100%] h-[50%] text-[18px] font-semibold flex items-start justify-center gap-[10px] text-[#986b6b]'>
+    Are You Sure? <button className='px-[20px] bg-[red] text-[white] rounded-lg hover:bg-slate-600' onClick={()=>{
+      cancleBooking(id);setPopUp(false)}}>Yes</button>
+
+    <button className='px-[10px] bg-[red] text-[white] rounded-lg hover:bg-slate-600' onClick={()=>setPopUp(false)} >No</button>
+  </div> 
+</div>}
+
 
 
 

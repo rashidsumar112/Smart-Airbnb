@@ -9,7 +9,7 @@ const bookingSchema=new mongoose.Schema({
         },
         guest:{
                 type:mongoose.Schema.Types.ObjectId,
-                ref:"User",
+                ref:"User"
                
             },
             listing:{

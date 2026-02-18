@@ -3,6 +3,7 @@ import React, { useState,Children, createContext, useContext, useEffect } from '
 import { authDataContext } from './AuthContext.jsx'
 export const listDataContext =createContext()
 import{useNavigate} from "react-router-dom"
+import { toast } from 'react-toastify'
 
 function ListContext({children}) {
 
@@ -20,6 +21,8 @@ let [backEndImage3,setbackEndImage3] = useState(null)
 let [city,setCity] = useState("")
 let [landmark,setLandMark] = useState("")
 let[category,setCategory] =useState("")
+
+let [searchData,setSearchData]=useState([])
 
 
 //this for adding button
@@ -62,6 +65,7 @@ setAdding(false)
 console.log(result)
 
 navigate("/")
+toast.success("Liting Added Successfully")
 //here we clear form after adding list aand move to home
   setTitle("")
   setDescription("")
@@ -102,6 +106,43 @@ const handleViewCard= async (id) => {
 
   }
 }
+
+//search handle functions
+// const handleSearch = async (data) =>{
+//   try{
+//     let result=await axios.get(serverURL + `/api/listing/search?query=${data}`)
+//     setSearchData(result.data)
+
+//   }
+//   catch(error){
+//     setSearchData(null)
+//     console.log("ERROR",error)
+
+//   }
+// }
+
+//my change
+const handleSearch = async (data) => {
+  try {
+
+    // ✅ Stop request if input is empty
+    if (!data || data.trim() === "") {
+      setSearchData([])
+      return;
+    }
+
+    let result = await axios.get(
+      serverURL + `/api/listing/search?query=${data}`
+    );
+
+    setSearchData(result.data);
+
+  } catch (error) {
+    console.log("ERROR", error);
+    setSearchData([]);
+  }
+};
+
 
 
 
@@ -153,7 +194,7 @@ newgetlist,setnewGetList,
 handleViewCard,
 cardDetails,setCardDetails,
 updating,setUpdating,
-deleting,setDeleting
+deleting,setDeleting,handleSearch,searchData,setSearchData
 
 
 

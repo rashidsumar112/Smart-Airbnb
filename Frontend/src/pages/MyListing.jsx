@@ -32,7 +32,7 @@ function MyListing() {
         <div className='w-[50px] h-[50px] bg-red-700 cursor-pointer justify-center absolute top-[4%] left-[20px] rounded-[50%] flex items-center justify-center' onClick={()=>navigate("/")}><IoArrowBackCircle  className='w-[30px] h-[30px] text-[white]' /></div>
 
 
-        <div className=' text-nowrap w-[50%] h-[10%] border-[2px] border-[#908c8c] p-[5px] flex items-center justify-center text-[30px] rounded-md text-[#613b3b] font-semibold mt-[80px] md:w-[600px]'>
+        <div className=' text-nowrap w-[50%] h-[10%] border-[2px] border-[#908c8c] p-[5px] flex items-center justify-center text-[30px] rounded-md text-[#613b3b] font-semibold mt-[30px] md:w-[600px]'>
             My Listing
         </div>
 
@@ -59,3 +59,5 @@ function MyListing() {
 }
 
 export default MyListing
+
+

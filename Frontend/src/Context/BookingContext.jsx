@@ -3,9 +3,13 @@ import React, { Children, createContext, useContext, useState } from 'react'
 import AuthContext, { authDataContext } from './AuthContext'
 import { userDataContext } from './UserContext'
 import { listDataContext } from './ListContext'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 export const  BookingDataContext=createContext()
 
 function BookingContext({children}) {
+let navigate=useNavigate()
+
 let [checkIn,setCheckIn]=useState("")
 let [checkOut,setCheckOut]=useState("")
 let [total,setTotal]=useState(0)
@@ -15,6 +19,7 @@ let {getCurrentUser}= useContext(userDataContext)
 let {getListing}=useContext(listDataContext)
 let {getlist}=useContext(listDataContext)
 let [bookingData,setBookingData]=useState([])
+let [booking,setBooking]=useState(false)
 
 
 
@@ -26,6 +31,8 @@ let [bookingData,setBookingData]=useState([])
 
 //booking creation
 const handleBooking = async (id) => {
+
+  setBooking(true)
   try{
    let result= await axios.post( serverURL + `/api/booking/create/${id}`,
     {
@@ -36,6 +43,9 @@ const handleBooking = async (id) => {
    await getListing()
 setBookingData(result.data)
  console.log(result.data)
+ setBooking(false)
+ navigate("/booked")
+  toast.success("Booked Successfully")
 
 
 
@@ -46,8 +56,9 @@ setBookingData(result.data)
   catch(error){
     console.error("BOOKING ERROR:", error.message)
     console.log("already booked")
-  
     setBookingData(null)
+     toast.error(error.response.data.message)
+    setBooking(false)
 
   }
 }
@@ -55,20 +66,23 @@ setBookingData(result.data)
 
 
 //cancle booking
-const cancleBooking = async(id)=>{
+const cancleBooking = async (id) =>{
   try{
 
     let result= await axios.delete( serverURL + `/api/booking/cancle/${id}`,
      {withCredentials:true})
+    
 
    await getCurrentUser()
    await getListing()
 
  console.log(result.data)
+  toast.success("booking Canceled SuccesFully")
 
   }
   catch(error){
-    console.log(error)
+    console.log("Error",error)
+     toast.error(error.response.data.message)
 
   }
 }
@@ -85,7 +99,7 @@ let value={
   total,setTotal,
   night,setNight,
   bookingData,setBookingData,
-  handleBooking,cancleBooking
+  handleBooking,cancleBooking,setBooking,booking
 
 
 }

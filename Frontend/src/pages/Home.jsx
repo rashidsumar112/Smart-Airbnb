@@ -2,6 +2,7 @@ import React, { useContext } from 'react'
 import Navbar from '../Components/Navbar'
 import { listDataContext } from '../Context/ListContext'
 import Card from '../Components/Card'
+import Footer from '../Components/Footer'
 
 function Home() {
 
@@ -19,6 +20,7 @@ function Home() {
 
       )}
      </div>
+     {/* <Footer /> */}
 
     </div>
   )

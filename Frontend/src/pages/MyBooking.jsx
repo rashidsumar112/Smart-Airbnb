@@ -11,14 +11,18 @@ function MyBooking() {
 
 
 
+    console.log("userData.booking raw:", userData?.booking)
+
+console.log("userData.booking raw:", userData?.booking);
+  userData?.booking?.forEach(b => console.log("Booking _id:", b._id, "Listing:", b.listing));
+
 
    //this my code for error check
-    console.log("userData:", userData)
-    console.log("userData?.listing:", userData?.booking)
-    if(userData?.listing?.length > 0) {
-        console.log("First listing item:", userData.listing[0])
-    }
-  
+   console.log("userData.booking:", userData?.booking)
+
+if (userData?.booking?.length > 0) {
+  console.log("First booking:", userData.booking[0])
+}
    
 
 
@@ -41,7 +45,7 @@ function MyBooking() {
 
                  {/* //change here */}
 
-{userData?.booking?.length > 0 ? (
+{/* {userData?.booking?.length > 0 ? (
   userData.booking.map((book) => (
     <Card
       key={book._id}
@@ -56,15 +60,46 @@ function MyBooking() {
       isBooked={true}
       host={book.listing.host}
       ratings={book.listing.ratings}
+      
     />
   ))
+) : (
+  <p className="text-gray-500 text-xl">No bookings found</p>
+)} */}
+
+
+
+{/* //this working */}
+
+{userData?.booking?.length > 0 ? (
+  userData.booking.map(book => (
+      <Card
+        key={book._id}
+         
+        title={book.listing.title}
+        city={book.listing.city}
+        landmark={book.listing.landmark}
+        image1={book.listing.image1}
+        image2={book.listing.image2}
+        image3={book.listing.image3}
+        rent={book.totalRent}
+        id={book.listing._id}
+        isBooked={true}
+        host={book.listing.host}
+        ratings={book.listing.ratings}
+       
+      />
+    ))
 ) : (
   <p className="text-gray-500 text-xl">No bookings found</p>
 )}
 
 
-
-
+{/* {userData.booking?.map((list)=>(
+              <Card title={list.title} landmark={list.landmark} city={list.city} image1={list.image1} image2={list.image2} image3={list.image3} rent={list.rent} id={list._id} isBooked={list.isBooked} host={list.host} ratings={list.ratings}/>
+            )
+      
+            )} */}
 
         </div>
         

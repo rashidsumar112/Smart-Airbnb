@@ -1,6 +1,6 @@
 // Frontend/src/Components/Navbar.jsx
 
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import logo from '../assets/logo.png'
 import { FcSearch } from "react-icons/fc";
 import { GiHamburgerMenu } from "react-icons/gi";
@@ -42,7 +42,8 @@ let navigate = useNavigate();
  let {serverURL}=useContext(authDataContext)
 
 let {userData,setUserData}=useContext(userDataContext)
-let{getlist,setGetList,newgetlist,setnewGetList}=useContext(listDataContext)
+let{getlist,setGetList,newgetlist,setnewGetList,searchData,handleSearch,setSearchData,handleViewCard}=useContext(listDataContext)
+let [input,setInput]=useState("")
 
 
 
@@ -87,6 +88,31 @@ const handleCategory = (category)=>{
 
 
 
+const handleClick=(id)=>{
+ 
+  if(userData){
+    handleViewCard(id)
+  }
+  else{
+    navigate("/login")
+  }
+
+
+
+}
+
+
+
+
+
+// for search functionality
+useEffect(()=>{
+
+handleSearch(input)
+  
+},[input])
+
+
 
 
 
@@ -112,7 +138,7 @@ const handleCategory = (category)=>{
 
       {/* //Navbar Searchbar here */}
       <div  className='w-[35%] relative  ml-[140px] hidden md:block'>
-     <input type="text" className='w-[100%] px-[30px] py-[8px] border-[2px] border-[#bdbaba] outline-none overflow-auto  rounded-[30px] ' placeholder='Any Where | Any Loaction | Any City'/>
+     <input type="text" className='w-[100%] px-[30px] py-[8px] border-[2px] border-[#bdbaba] outline-none overflow-auto  rounded-[30px] ' placeholder='Any Where | Any Loaction | Any City' onChange={(e)=>setInput(e.target.value)} value={input} />
      <button className='absolute p-[10px] rounded-[50px] bg-[red] right-[3%] top-[4px]'><FcSearch className='w-[16px] h-[16px] text-[white]' />
      </button>
       </div>
@@ -166,6 +192,37 @@ const handleCategory = (category)=>{
 
       </div>
 
+      {/* for search map */}
+      { searchData?.length > 0 && 
+        <div className='w-[100vw] h-[450px] flex flex-col gap-[20px] absolute top-[50%] overflow-auto left-[0] justify-start items-center'>
+        <div className='max-w-[700px] w-[100vw] h-[300px] overflow-hidden flex flex-col bg-[#fefdfd] p-[20px] rounded-lg border-[1px] border-[#a21a1a] cursor-pointer'>
+
+               {/* {
+               SearchData.map((search)=>{
+                <div className='border-b border-[black] p-[10px]'>
+                  { search.title } in {search.landmark},{search.city}
+
+                </div>
+
+               }) 
+
+               } */}
+
+
+
+               {/* my change */}
+     {
+    searchData.map((search, index) => (
+  <div key={index} className='border-b border-[black] p-[10px]' onClick={()=>handleViewCard(search._id)}>
+    {search.title} in {search.landmark}, {search.city}
+  </div>
+))
+}
+
+        </div>
+
+      </div>}
+
 
      </div>
 
@@ -179,7 +236,7 @@ const handleCategory = (category)=>{
     <input
       type="text"
       className="w-full px-[30px] py-[8px] border-[2px] border-[#bdbaba] outline-none rounded-[30px] text-[17px]"
-      placeholder="Any Where | Any Location | Any City"
+      placeholder="Any Where | Any Location | Any City"  onChange={(e)=>setInput(e.target.value)} value={input}
     />
     <button className="absolute p-[10px] rounded-full bg-red-500 right-[3%] top-[4px]">
       <FcSearch className="w-[16px] h-[16px] text-white" />

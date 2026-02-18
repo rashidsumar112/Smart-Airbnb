@@ -108,62 +108,125 @@ export const findListing=async(req,res)=>{
 
 //upaadte listing
 
-export const updateListing=async(req,res)=>{
-    try{
-        let image1;
-        let image2;
-        let image3;
+// export const updateListing=async(req,res)=>{
+//     try{
+//         let image1;
+//         let image2;
+//         let image3;
 
+
+//     console.log("USER ID:", req.userId);
+//     console.log("BODY:", req.body);
+//     console.log("FILES:", req.files);
+//     //host conatins userid which gives us by AuthUser.js
+//     let {id} =req.params;
+//     let {title,description,rent,city,landmark,category}=req.body;
+//     //it will takes images file from cloundinary
+
+
+//     //my changes
+//     console.log("Starting image uploads to Cloudinary...");
+//     if(req.files.image1){
+//      image1= await uploadOnCloudinary(req.files.image1[0].path)
+//     console.log("Image 1 uploaded:", image1);}
+//      if(req.files.image2){
+//     image2= await uploadOnCloudinary(req.files.image2[0].path)
+//     console.log("Image 2 uploaded:", image2);}
+//      if(req.files.image3){
+//     image3= await uploadOnCloudinary(req.files.image3[0].path)
+//     console.log("Image 3 uploaded:", image3);}
+
+//     // Check if all images were uploaded successfully
+//     if (!image1 || !image2 || !image3) {
+//       console.log("Image upload failed. image1:", image1, "image2:", image2, "image3:", image3);
+//       return res.status(400).json({ message: "Failed to upload one or more images to Cloudinary" });
+//     }
+
+// //Here we create listings
+// let listing=await Listing.findByIdAndUpdate(id,{
+//     title,
+//     description,
+//     rent,
+//     city,
+//     landmark,
+//     category,
+//     image1,
+//     image2,
+//     image3,
+
+// },{new:true})
+//  return res.status(201).json(listing)
+
+//     }
+//     catch(error){
+//         return res.status(500).json({message:"Update Error"})
+//         console.log(error)
+
+//     }
+// }
+
+
+// my change
+export const updateListing = async (req, res) => {
+  try {
+    let image1;
+    let image2;
+    let image3;
 
     console.log("USER ID:", req.userId);
     console.log("BODY:", req.body);
     console.log("FILES:", req.files);
-    //host conatins userid which gives us by AuthUser.js
-    let {id} =req.params;
-    let {title,description,rent,city,landmark,category}=req.body;
-    //it will takes images file from cloundinary
 
+    let { id } = req.params;
+    let { title, description, rent, city, landmark } = req.body; // category removed
 
-    //my changes
+    // Upload only if new images are provided
     console.log("Starting image uploads to Cloudinary...");
-    if(req.files.image1){
-     image1= await uploadOnCloudinary(req.files.image1[0].path)
-    console.log("Image 1 uploaded:", image1);}
-     if(req.files.image2){
-    image2= await uploadOnCloudinary(req.files.image2[0].path)
-    console.log("Image 2 uploaded:", image2);}
-     if(req.files.image3){
-    image3= await uploadOnCloudinary(req.files.image3[0].path)
-    console.log("Image 3 uploaded:", image3);}
-
-    // Check if all images were uploaded successfully
-    if (!image1 || !image2 || !image3) {
-      console.log("Image upload failed. image1:", image1, "image2:", image2, "image3:", image3);
-      return res.status(400).json({ message: "Failed to upload one or more images to Cloudinary" });
+    if (req.files?.image1) {
+      image1 = await uploadOnCloudinary(req.files.image1[0].path);
+      console.log("Image 1 uploaded:", image1);
+    }
+    if (req.files?.image2) {
+      image2 = await uploadOnCloudinary(req.files.image2[0].path);
+      console.log("Image 2 uploaded:", image2);
+    }
+    if (req.files?.image3) {
+      image3 = await uploadOnCloudinary(req.files.image3[0].path);
+      console.log("Image 3 uploaded:", image3);
     }
 
-//Here we create listings
-let listing=await Listing.findByIdAndUpdate(id,{
-    title,
-    description,
-    rent,
-    city,
-    landmark,
-    category,
-    image1,
-    image2,
-    image3,
-
-},{new:true})
- return res.status(201).json(listing)
-
+    // Find existing listing
+    let listing = await Listing.findById(id);
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
     }
-    catch(error){
-        return res.status(500).json({message:"Update Error"})
-        console.log(error)
 
-    }
-}
+    // Update text fields (without category)
+    listing.title = title;
+    listing.description = description;
+    listing.rent = rent;
+    listing.city = city;
+    listing.landmark = landmark;
+
+    // Update images only if new ones exist
+    if (image1) listing.image1 = image1;
+    if (image2) listing.image2 = image2;
+    if (image3) listing.image3 = image3;
+
+    await listing.save();
+
+    return res.status(200).json(listing);
+  } catch (error) {
+    console.log("UPDATE ERROR:", error);
+    return res.status(500).json({ message: "Update Error" });
+  }
+};
+
+
+
+
+
+
 
 export const deleteListing=async(req,res)=>{
     try{
@@ -178,6 +241,58 @@ export const deleteListing=async(req,res)=>{
     }
     catch(error){
       return res.status(500).json({message:`Error in Deleting Listing ${error}`})  
+
+    }
+}
+
+
+
+//for ratings
+export const ratingListing=async(req,res)=>{
+    try{
+
+    
+    let {id}=req.params;
+    let {ratings}=req.body;
+    let listing=await Listing.findById(id)
+    if(!listing){
+          return  res.status(400).json({message:"Listing Not Find"})
+
+        }
+        listing.ratings=Number(ratings)
+        await listing.save();
+        return res.status(200).json({ratings:listing.ratings})
+    
+
+
+    }
+    catch(error){
+       return res.status(500).json({message:`Ratings Error ${error}`})
+    }
+
+}
+
+//for serach Functionlity
+export const search=async(req,res)=>{
+    try{
+        const {query}=req.query;
+        if(!query){
+            return res.status(400).json({message:"search Query is Required"})
+        }
+        const listing = await Listing.find({
+            $or:[
+                {landmark:{$regex:query,$options:"i"}},
+                {city:{$regex:query,$options:"i"}},
+                {title:{$regex:query,$options:"i"}},
+
+            ],
+        });
+        return res.status(200).json(listing)
+
+    }
+    catch(error){
+        console.log("Search Error",error)
+        res.status(500).json({message:"Internal server error "})
 
     }
 }

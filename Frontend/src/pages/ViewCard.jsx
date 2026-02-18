@@ -10,6 +10,7 @@ import axios from 'axios';
 import { authDataContext } from '../Context/AuthContext';
 import {FaStar} from "react-icons/fa";
 import BookingContext, { BookingDataContext } from '../Context/BookingContext';
+import { toast } from 'react-toastify';
 
 
 
@@ -51,7 +52,7 @@ let {userData}=useContext(userDataContext)
  let {checkIn,setCheckIn,
   checkOut,setCheckOut,
   total,setTotal,
-  night,setNight,handleBooking
+  night,setNight,handleBooking,booking,setBooking
 }=useContext(BookingDataContext)
  
 //calculating booking bill 
@@ -82,9 +83,24 @@ let {userData}=useContext(userDataContext)
 
     let formData = new FormData()
     formData.append("title",title)
-    formData.append("image1",backEndImage1)
-    formData.append("image2",backEndImage2)
-    formData.append("image3",backEndImage3)
+    // formData.append("image1",backEndImage1)
+    // formData.append("image2",backEndImage2)
+    // formData.append("image3",backEndImage3)
+    if (backEndImage1) {
+  formData.append("image1", backEndImage1)
+}
+
+if (backEndImage2) {
+  formData.append("image2", backEndImage2)
+}
+
+if (backEndImage3) {
+  formData.append("image3", backEndImage3)
+}
+
+
+
+    
     formData.append("description",description)
     formData.append("rent",rent)
     formData.append("city",city)
@@ -98,6 +114,7 @@ let {userData}=useContext(userDataContext)
     console.log(result)
     
     navigate("/")
+     toast.success("Listing Updated Successfully")
     //here we clear form after adding list aand move to home
       setTitle("")
       setDescription("")
@@ -114,6 +131,7 @@ let {userData}=useContext(userDataContext)
         catch(error){
         
             setUpdating(false)
+             toast.error(error.response.data.message)
             console.log(error)
     
         }
@@ -273,7 +291,7 @@ useEffect(()=>{
                      <div className='w-[90%] flex items-start justify-start flex-col gap-[10px]'>
                        <label htmlFor="img1" className='text-[20px]'>Image1</label>
                         <div className='flex items-center justify-start w-[90%] h-[40px] border-[#555656] border-2 rounded-[10px]'>
-                       <input type="file" id='img1'className='w-[100%]  text-[15px] px-[10px] text-[black]' required  onChange={handleImage1} /></div>
+                       <input type="file" id='img1'className='w-[100%]  text-[15px] px-[10px] text-[black]'   onChange={handleImage1} /></div>
                      </div>
                       
        
@@ -281,7 +299,7 @@ useEffect(()=>{
                        <div className='w-[90%] flex items-start justify-start flex-col gap-[10px]'>
                        <label htmlFor="img2" className='text-[20px]'>Image2</label>
                         <div className='flex items-center justify-start w-[90%] h-[40px] border-[#555656] border-2 rounded-[10px]'>
-                       <input type="file" id='img2'className='w-[100%]  text-[15px] px-[10px] text-[black]' required  onChange={handleImage2} /></div>
+                       <input type="file" id='img2'className='w-[100%]  text-[15px] px-[10px] text-[black]'   onChange={handleImage2} /></div>
                      </div>
        
        
@@ -290,7 +308,7 @@ useEffect(()=>{
                      <div className='w-[90%] flex items-start justify-start flex-col gap-[10px]'>
                        <label htmlFor="img3" className='text-[20px]'>Image3</label>
                         <div className='flex items-center justify-start w-[90%] h-[40px] border-[#555656] border-2 rounded-[10px]'>
-                       <input type="file" id='img3'className='w-[100%]  text-[15px] px-[10px] text-[black]' required  onChange={handleImage3} /></div>
+                       <input type="file" id='img3'className='w-[100%]  text-[15px] px-[10px] text-[black]'   onChange={handleImage3} /></div>
                      </div>
        
                      
@@ -361,7 +379,9 @@ useEffect(()=>{
                    </div>
 
                        <div className='w-[100%] flex items-center justify-center text-nowrap'>
-                    <button className='px-[80px] py-[10px] bg-blue-600 text-[white] text-[18px] md:px-[100px]  rounded-lg   mt-[30px]'onClick={()=>handleBooking(cardDetails._id)}>Book Now</button>
+                    <button className='px-[80px] py-[10px] bg-blue-600 text-[white] text-[18px] md:px-[100px]  rounded-lg   mt-[30px]'onClick={()=>handleBooking(cardDetails._id)} disabled={booking}>
+                      {booking?"Booking...":"Book Now"}
+                      </button>
                     </div>
        
 

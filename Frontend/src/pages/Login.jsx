@@ -5,6 +5,7 @@ import { IoArrowBackCircle } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
 import { authDataContext } from '../Context/AuthContext';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import { userDataContext } from '../Context/UserContext';
 
 function Login() {
@@ -41,10 +42,12 @@ try{
   //set the fetched user data to userData state variable
   setUserData(result.data);
   navigate("/");
+   toast.success("Login Successfully")
   console.log("login successful",result)
 } 
 catch(error){
   setLoading(false)
+   toast.error(error.response.data.message)
   console.log("Error during login",error)
 
 } 
