@@ -86,6 +86,7 @@ if (userData?.booking?.length > 0) {
         id={book.listing._id}
         isBooked={true}
         host={book.listing.host}
+         guest={book.guest}
         ratings={book.listing.ratings}
        
       />

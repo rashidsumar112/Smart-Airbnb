@@ -65,24 +65,64 @@ catch(error){
 
 
 
-//for booking cancle
+
+//🔧 FIXED: for booking cancle - NOW PROPERLY DELETES BOOKING FROM ALL COLLECTIONS
+// ⭐ NEW: Both HOST and GUEST can cancel the booking
 export const cancleBooking = async(req,res)=>{
   try{
+   // 📌 req.params.id is the LISTING ID (from frontend Card component)
    let {id}=req.params
-   let listing= await Listing.findByIdAndUpdate(id,{isBooked:false})
-   let user =await User.findByIdAndUpdate(listing.host,{$pull:{booking:listing._id}},{new:true})
 
-   if(!user){
-    return res.status(400).json({message:"User is Not found"})
+   // 1️⃣ FIND THE BOOKING DOCUMENT using listing ID
+   // This is crucial because we need the booking._id to remove it from users and Booking collection
+   let booking = await Booking.findOne({listing:id})
+   
+   if(!booking){
+    return res.status(404).json({message:"Booking not found"})
    }
-   return res.status(200).json({message:"Booking Cancled"})
+
+   // ⭐ NEW: AUTHORIZATION CHECK - Only host or guest can cancel
+   // This prevents unauthorized users from cancelling other people's bookings
+   if(booking.host.toString() !== req.userId && booking.guest.toString() !== req.userId){
+    return res.status(403).json({message:"You are not authorized to cancel this booking"})
+   }
+
+   // 2️⃣ UPDATE LISTING - set isBooked to false and clear guest reference
+   let listing = await Listing.findByIdAndUpdate(
+     id,
+     {isBooked:false, guest:null},
+     {new:true}
+   )
+
+   // 3️⃣ REMOVE BOOKING ID FROM HOST USER - ✅ NOW USING CORRECT booking._id
+   await User.findByIdAndUpdate(
+     booking.host,
+     {$pull:{booking:booking._id}},  // ✅ FIXED: Use booking._id NOT listing._id
+     {new:true}
+   )
+
+   // 4️⃣ REMOVE BOOKING ID FROM GUEST USER - ⭐ THIS WAS MISSING! 
+   await User.findByIdAndUpdate(
+     booking.guest,
+     {$pull:{booking:booking._id}},  // ⭐ Essential: Guest user must also have booking removed
+     {new:true}
+   )
+
+   // 5️⃣ DELETE THE BOOKING DOCUMENT FROM BOOKING COLLECTION - ⭐ THIS WAS MISSING!
+   // This ensures the booking record is completely removed from DB
+   await Booking.findByIdAndDelete(booking._id)
+
+   if(!listing){
+    return res.status(400).json({message:"Listing not found"})
+   }
+   
+   return res.status(200).json({message:"Booking Cancelled Successfully and removed from all collections"})
 
   }
 
   catch(error){
-     return res.status(500).json({message:"Error In Booking Cancling"})
-
-
+     console.error("Cancel booking error:", error)
+     return res.status(500).json({message:"Error In Booking Cancelling"})
   }
 }
 
@@ -91,38 +131,29 @@ export const cancleBooking = async(req,res)=>{
 
 
 
-// //my change
-// export const cancleBooking = async (req, res) => {
-//   try {
-//     const { id } = req.params; // booking _id
+//for booking cancle
+// export const cancleBooking = async(req,res)=>{
+//   try{
+//    let {id}=req.params
+//    let listing= await Listing.findByIdAndUpdate(id,{isBooked:false})
+//    let user =await User.findByIdAndUpdate(listing.host,{$pull:{booking:listing._id}},{new:true})
 
-//     // 1️⃣ Find the booking
-//     const booking = await Booking.findById(id);
-//     if (!booking) return res.status(404).json({ message: "Booking not found" });
+//    if(!user){
+//     return res.status(400).json({message:"User is Not found"})
+//    }
+//    return res.status(200).json({message:"Booking Cancled"})
 
-//     // 2️⃣ Only host or guest can cancel
-//     if (booking.host.toString() !== req.userId && booking.guest.toString() !== req.userId) {
-//       return res.status(403).json({ message: "You cannot cancel this booking" });
-//     }
-
-//     // 3️⃣ Update listing
-//     await Listing.findByIdAndUpdate(booking.listing, {
-//       isBooked: false,
-//       guest: null
-//     });
-
-//     // 4️⃣ Remove booking from host and guest
-//     await User.findByIdAndUpdate(booking.host, { $pull: { booking: booking._id } });
-//     await User.findByIdAndUpdate(booking.guest, { $pull: { booking: booking._id } });
-
-//     // 5️⃣ Delete booking
-//     await Booking.findByIdAndDelete(id);
-
-//     return res.status(200).json({ message: "Booking cancelled successfully" });
-
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ message: "Cancel booking failed" });
 //   }
-// };
+
+//   catch(error){
+//      return res.status(500).json({message:"Error In Booking Cancling"})
+
+
+//   }
+// }
+
+
+
+
+
 

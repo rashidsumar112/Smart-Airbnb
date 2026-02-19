@@ -9,7 +9,7 @@ import { BookingDataContext } from '../Context/BookingContext'
 
 
 
-function Card({title,landmark,image1,image2,image3,rent,city,id,ratings,isBooked,host}) {
+function Card({title,landmark,image1,image2,image3,rent,city,id,ratings,isBooked,host,guest}) {
   let navigate=useNavigate()
 
 let {userData}=useContext(userDataContext)
@@ -44,7 +44,9 @@ const handleClick=()=>{
  {/* isBooked && host == userData?._id && */}
 
 {/* for showing Cancle booking message */}
-{ isBooked && host == userData?._id && <div className='text-[red] bg-[white] rounded-lg absolute flex items-center justify-center right-1 top-[50px] gap-[5px] p-[5px]' onClick={()=>setPopUp(true)}><p className='w-[20px] h-[20px] text-[red] font-semibold' >X</p>Cancled Booking</div>}
+{ userData && isBooked && 
+  (host?.toString() === userData._id || 
+   guest?.toString() === userData._id) &&  <div className='text-[red] bg-[white] rounded-lg absolute flex items-center justify-center right-1 top-[50px] gap-[5px] p-[5px]' onClick={()=>setPopUp(true)}><p className='w-[20px] h-[20px] text-[red] font-semibold' >X</p>Cancled Booking</div>}
 
 
 
