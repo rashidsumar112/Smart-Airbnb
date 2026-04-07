@@ -1,7 +1,8 @@
 // Frontend/src/Components/Navbar.jsx
 
-import React, { useContext, useState } from 'react'
-import logo from '../assets/logo.png'
+import React, { useContext, useEffect, useState } from 'react'
+import logo from '../assets/logo6.png'
+import logos from '../assets/logos.png'
 import { FcSearch } from "react-icons/fc";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { CgProfile } from "react-icons/cg";
@@ -22,6 +23,14 @@ import axios from 'axios';
 import { userDataContext } from '../Context/UserContext.jsx';
 import { listDataContext } from '../Context/ListContext.jsx';
 
+// ============================================
+// 🤖 CHATBOT COMPONENT IMPORT
+// ============================================
+// Imported beautiful chatbot component
+// Features: Location-based suggestions, AI responses
+// This will be rendered at the bottom of navbar
+import Chatbot from './Chatbot';
+
 
 
 
@@ -30,19 +39,36 @@ import { listDataContext } from '../Context/ListContext.jsx';
 
 
 function Navbar() {
-//For category set
+  // ============================================
+  // STATE MANAGEMENT
+  // ============================================
+  
+  // Category filtering state
   let [cate,setCate]=useState()
 
-let [showPopup, setShowPopup] = useState(false);
+  // Menu popup state
+  let [showPopup, setShowPopup] = useState(false);
+  
+  // ============================================
+  // 🤖 CHATBOT STATE ADDITION
+  // ============================================
+  // Controls whether chatbot window is visible
+  // true = chatbot open, false = chatbot closed
+  // Updated when user clicks chat icon or close button
+  let [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
-//addings functionlity for login navigates
+  // ============================================
+  // ROUTING & CONTEXT
+  // ============================================
+  //addings functionlity for login navigates
 
-let navigate = useNavigate();
+  let navigate = useNavigate();
 //Here we gets Server Url from authDataContext
  let {serverURL}=useContext(authDataContext)
 
 let {userData,setUserData}=useContext(userDataContext)
-let{getlist,setGetList,newgetlist,setnewGetList}=useContext(listDataContext)
+let{getlist,setGetList,newgetlist,setnewGetList,searchData,handleSearch,setSearchData,handleViewCard}=useContext(listDataContext)
+let [input,setInput]=useState("")
 
 
 
@@ -87,6 +113,31 @@ const handleCategory = (category)=>{
 
 
 
+const handleClick=(id)=>{
+ 
+  if(userData){
+    handleViewCard(id)
+  }
+  else{
+    navigate("/login")
+  }
+
+
+
+}
+
+
+
+
+
+// for search functionality
+useEffect(()=>{
+
+handleSearch(input)
+  
+},[input])
+
+
 
 
 
@@ -94,7 +145,7 @@ const handleCategory = (category)=>{
 
 
   return (
-
+    <>
     <div className=' fixed top-0 bg-[#aee884] z-[20]'>
     {/* // 1st Navbar container */}
    <div className='w-[100vw] min-h-[80px]  border-b-[1px] border-[#dcdcdcd] px-[20px] flex items-center justify-between md:px-[40px] '>
@@ -104,7 +155,7 @@ const handleCategory = (category)=>{
 
       {/* //navbar logo here */}
       <div>
-        <img src={logo} alt="" className='w-[80px]'></img>
+        <img src={logo} alt="" className='w-[80px] '></img>
       </div>
 
 
@@ -112,7 +163,7 @@ const handleCategory = (category)=>{
 
       {/* //Navbar Searchbar here */}
       <div  className='w-[35%] relative  ml-[140px] hidden md:block'>
-     <input type="text" className='w-[100%] px-[30px] py-[8px] border-[2px] border-[#bdbaba] outline-none overflow-auto  rounded-[30px] ' placeholder='Any Where | Any Loaction | Any City'/>
+     <input type="text" className='w-[100%] px-[30px] py-[8px] border-[2px] border-[#bdbaba] outline-none overflow-auto  rounded-[30px] ' placeholder='Any Where | Any Loaction | Any City' onChange={(e)=>setInput(e.target.value)} value={input} />
      <button className='absolute p-[10px] rounded-[50px] bg-[red] right-[3%] top-[4px]'><FcSearch className='w-[16px] h-[16px] text-[white]' />
      </button>
       </div>
@@ -120,8 +171,20 @@ const handleCategory = (category)=>{
 
   
   <div className='flex items-center justify-center gap-[10px] relative  '>
-  {/* Chat Icon with hover message */}
-    <div className="relative group cursor-pointer p-[10px] rounded-full hover:bg-[#ededed] transition hidden md:block">
+  
+  {/* 
+    ============================================
+    🤖 CHAT ICON - DESKTOP VERSION (ADDITION)
+    ============================================
+    Features:
+    - FaRocketchat icon from react-icons
+    - Clickable to open beautiful chatbot window
+    - Hover background color change
+    - Tooltip text shows on hover: "Hi 👋 How can I help you?"
+    - Hidden on mobile (hidden md:block)
+    - Calls setIsChatbotOpen(true) when clicked
+  */}
+  <div className="relative group cursor-pointer p-[10px] rounded-full hover:bg-[#ededed] transition hidden md:block" onClick={() => setIsChatbotOpen(true)}>
 
      <FaRocketchat className="w-[22px] h-[22px] text-[#555]" />
 
@@ -166,6 +229,37 @@ const handleCategory = (category)=>{
 
       </div>
 
+      {/* for search map */}
+      { searchData?.length > 0 && 
+        <div className='w-[100vw] h-[450px] flex flex-col gap-[20px] absolute top-[50%] overflow-auto left-[0] justify-start items-center'>
+        <div className='max-w-[700px] w-[100vw] h-[300px] overflow-hidden flex flex-col bg-[#fefdfd] p-[20px] rounded-lg border-[1px] border-[#a21a1a] cursor-pointer'>
+
+               {/* {
+               SearchData.map((search)=>{
+                <div className='border-b border-[black] p-[10px]'>
+                  { search.title } in {search.landmark},{search.city}
+
+                </div>
+
+               }) 
+
+               } */}
+
+
+
+               {/* my change */}
+     {
+    searchData.map((search, index) => (
+  <div key={index} className='border-b border-[black] p-[10px]' onClick={()=>handleViewCard(search._id)}>
+    {search.title} in {search.landmark}, {search.city}
+  </div>
+))
+}
+
+        </div>
+
+      </div>}
+
 
      </div>
 
@@ -179,15 +273,27 @@ const handleCategory = (category)=>{
     <input
       type="text"
       className="w-full px-[30px] py-[8px] border-[2px] border-[#bdbaba] outline-none rounded-[30px] text-[17px]"
-      placeholder="Any Where | Any Location | Any City"
+      placeholder="Any Where | Any Location | Any City"  onChange={(e)=>setInput(e.target.value)} value={input}
     />
     <button className="absolute p-[10px] rounded-full bg-red-500 right-[3%] top-[4px]">
       <FcSearch className="w-[16px] h-[16px] text-white" />
     </button>
   </div>
 
-  {/* Chat Icon */}
-  <div className="relative group cursor-pointer p-[10px] rounded-full hover:bg-[#ededed] transition flex items-center justify-center">
+  {/* 
+    ============================================
+    🤖 CHAT ICON - MOBILE VERSION (ADDITION)
+    ============================================
+    Features:
+    - Same as desktop version but visible on mobile
+    - FaRocketchat icon from react-icons
+    - Clickable to open beautiful chatbot window
+    - Hover background color change
+    - Tooltip text shows on hover: "Hi 👋 How can I help you?"
+    - Visible on mobile (block md:hidden)
+    - Calls setIsChatbotOpen(true) when clicked
+  */}
+  <div className="relative group cursor-pointer p-[10px] rounded-full hover:bg-[#ededed] transition flex items-center justify-center" onClick={() => setIsChatbotOpen(true)}>
     <FaRocketchat className="w-[22px] h-[22px] text-[#555]" />
 
     {/* Tooltip */}
@@ -217,61 +323,87 @@ const handleCategory = (category)=>{
     <div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="trending"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>{handleCategory("trending");setCate("")}}>
      
      <MdOutlineWhatshot  className='w-[30px] h-[30px] text-black'/>
-     <h3>Trending</h3>
+     <h3 className="mt-1 text-sm font-medium text-gray-700 tracking-wide">Trending</h3>
     </div>
 
 <div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="villa"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>handleCategory("villa")}>
      
      <GiFamilyHouse  className='w-[30px] h-[30px] text-black'/>
-     <h3>Villa</h3>
+     <h3 className="mt-1 text-sm font-medium text-gray-700 tracking-wide">Villa</h3>
     </div>
 
     <div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="farmhouse"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>handleCategory("farmhouse")}>
      
      <FaTreeCity 
   className='w-[30px] h-[30px] text-black'/>
-     <h3>FarmHouse</h3>
+     <h3 className="mt-1 text-sm font-medium text-gray-700 tracking-wide">FarmHouse</h3>
     </div>
 
     <div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="poolhouse"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>handleCategory("poolhouse")}>
      
      <MdOutlinePool  className='w-[30px] h-[30px] text-black'/>
-     <h3>PoolHouse</h3>
+     <h3 className="mt-1 text-sm font-medium text-gray-700 tracking-wide">PoolHouse</h3>
     </div>
 
     <div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="rooms"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>handleCategory("rooms")}>
      
      <MdBedroomParent   className='w-[30px] h-[30px] text-black'/>
-     <h3>Rooms</h3>
+     <h3 className="mt-1 text-sm font-medium text-gray-700 tracking-wide">Rooms</h3>
     </div>
 
     <div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="flat"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>handleCategory("flat")}>
      
      <BiBuildingHouse   className='w-[30px] h-[30px] text-black'/>
-     <h3>Flat</h3>
+     <h3 className="mt-1 text-sm font-medium text-gray-700 tracking-wide">Flat</h3>
     </div>
 
     <div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="pg"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>handleCategory("pg")}>
      
      <IoBedOutline  className='w-[30px] h-[30px] text-black'/>
-     <h3>PG</h3>
+     <h3 className="mt-1 text-sm font-medium text-gray-700 tracking-wide">PG</h3>
     </div>
 
     <div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="cabin"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>handleCategory("cabin")}>
      
      <GiWoodCabin  className='w-[30px] h-[30px] text-black'/>
-     <h3>Cabin</h3>
+     <h3 className="mt-1 text-sm font-medium text-gray-700 tracking-wide">Cabin</h3>
     </div>
 
     <div className={`flex items-center justify-center flex-col hover:border-b-[1px] border-[#a6a5a5] text-[13px] ${cate=="shops"?"border-b-[1px] border-[#a65a5a]":""}`} onClick={()=>handleCategory("shops")}>
      
      < SiHomeassistantcommunitystore   className='w-[30px] h-[30px] text-black'/>
-     <h3>Shops</h3>
+     <h3 className="mt-1 text-sm font-medium text-gray-700 tracking-wide">Shops</h3>
     </div>
 
     </div>  
  
 </div>
+
+      {/* 
+        ============================================
+        🤖 CHATBOT COMPONENT RENDERING (ADDITION)
+        ============================================
+        Renders beautiful chatbot window at the bottom
+        
+        Props:
+        - isOpen={isChatbotOpen}
+          Controls visibility of chatbot window
+          true = displayed, false = hidden
+          
+        - onClose={() => setIsChatbotOpen(false)}
+          Callback function when user clicks X button
+          Closes the chatbot window
+        
+        When user clicks chat icon:
+        1. isChatbotOpen state becomes true
+        2. Chatbot window appears at bottom-right
+        3. User can type messages and chat
+        4. When X button clicked, onClose fires
+        5. isChatbotOpen becomes false
+        6. Chatbot window disappears
+      */}
+      <Chatbot isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
+    </>
   )
 }
 

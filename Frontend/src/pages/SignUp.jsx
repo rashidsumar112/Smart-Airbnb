@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { authDataContext } from '../Context/AuthContext';
 import { userDataContext } from '../Context/UserContext';
+import { toast } from 'react-toastify';
 
 function SignUp() {
 //to navigate to different routes after signup like for login
@@ -43,10 +44,12 @@ try{
   //set the fetched user data to userData state variable
   setUserData(result.data);
   navigate("/");
+  toast.success("SignUp Successfully")
   console.log("Signup successful",result)
 } 
 catch(error){
   setLoading(false)
+   toast.error("SignUp Error")
   console.log("Error during signup",error)
 
 } 

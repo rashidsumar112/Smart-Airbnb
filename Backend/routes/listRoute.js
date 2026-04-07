@@ -1,7 +1,7 @@
 import express from "express";
 import AuthUser from "../middleware/AuthUser.js";
 import upload from "../middleware/multer.js";
-import { addListing, deleteListing, findListing, getList, updateListing } from "../controllers/ListingController.js";
+import { addListing, deleteListing, findListing, getList, ratingListing, search, updateListing } from "../controllers/ListingController.js";
 
 let listRouter=express.Router()
 //here we fields because we upload multiples images
@@ -20,6 +20,12 @@ listRouter.get("/findlistingbyid/:id",AuthUser,findListing)
 
 //for deletion
 listRouter.delete("/delete/:id",AuthUser,deleteListing)
+
+//for ratings
+listRouter.post("/ratings/:id",AuthUser,ratingListing)
+
+//for search query Routes
+listRouter.get("/search",search)
 
 //for Update Route
 listRouter.post("/update/:id",AuthUser,upload.fields([

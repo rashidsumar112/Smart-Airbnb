@@ -10,6 +10,7 @@ import axios from 'axios';
 import { authDataContext } from '../Context/AuthContext';
 import {FaStar} from "react-icons/fa";
 import BookingContext, { BookingDataContext } from '../Context/BookingContext';
+import { toast } from 'react-toastify';
 
 
 
@@ -26,54 +27,89 @@ let {userData}=useContext(userDataContext)
   let navigate=useNavigate()
 
   let {cardDetails}=useContext(listDataContext)
+  let {setCardDetails}=useContext(listDataContext)
 
   let {updating,setUpdating}=useContext(listDataContext)
   let {deleting,setDeleting}=useContext(listDataContext)
 
-
   //for editing popup
   let [updatePopUp,setupdatePopUp]=useState(false)
  let [bookPopUp,setBookPopUp]=useState(false)
+ 
+ // ✨ NEW STATE: Show booked dates popup when clicking on card
+ let [showBookedPopup, setShowBookedPopup] = useState(false)
 //use states for the Listupdate
- let [title,setTitle] = useState(cardDetails.title)
-  let [description,setDescription] = useState(cardDetails.description)
+ let [title,setTitle] = useState(cardDetails?.title || '')
+  let [description,setDescription] = useState(cardDetails?.description || '')
  let [backEndImage1,setbackEndImage1] = useState(null)
  let [backEndImage2,setbackEndImage2] = useState(null)
  let [backEndImage3,setbackEndImage3] = useState(null)
-  let [rent,setRent] = useState(cardDetails.rent)
- let [city,setCity] = useState(cardDetails.city)
- let [landmark,setLandMark] = useState(cardDetails.landmark)
+  let [rent,setRent] = useState(cardDetails?.rent || '')
+ let [city,setCity] = useState(cardDetails?.city || '')
+ let [landmark,setLandMark] = useState(cardDetails?.landmark || '')
 
  let [minDate,setMinDate]=useState("")
 
+ // ✨ NEW STATE: Store booked dates fetched from backend
+ // 📅 This will hold array of {checkIn, checkOut} objects showing when listing is unavailable
+ let [bookedDates, setBookedDates] = useState([])
 
  //For booking
  let {checkIn,setCheckIn,
   checkOut,setCheckOut,
   total,setTotal,
-  night,setNight,handleBooking
+  night,setNight,handleBooking,booking,setBooking
 }=useContext(BookingDataContext)
- 
-//calculating booking bill 
 
-   useEffect(()=>{
-  if(checkIn && checkOut){
-    let inDate= new Date(checkIn)
-    let OutDate= new Date(checkOut)
-    let n = (OutDate - inDate)/(24*60*60*1000)
-    setNight(n)
-    let airBnbCharge=(cardDetails.rent*(7/100))
-    let tax = (cardDetails.rent*(7/100))
-    if(n>0){
-      setTotal((cardDetails.rent *n) + airBnbCharge + tax)
+  // ============================================
+  // 🆕 CHATBOT -> VIEWCARD BRIDGE (ADDITION)
+  // ============================================
+  // If user navigates from chatbot Reserve button,
+  // restore selected listing from localStorage into context.
+  useEffect(() => {
+    if (!cardDetails) {
+      const fromChatbot = localStorage.getItem('chatbotSelectedListing');
+      if (fromChatbot) {
+        try {
+          const parsed = JSON.parse(fromChatbot);
+          setCardDetails(parsed);
+          localStorage.removeItem('chatbotSelectedListing');
+        } catch (error) {
+          console.log('Error parsing chatbot listing:', error);
+        }
+      }
     }
-    else{
-      setTotal(0)
+  }, [cardDetails, setCardDetails]);
+
+  // ✅ MOVE CALCULATING BOOKING BILL USEEFFECT BEFORE EARLY RETURN
+  useEffect(()=>{
+    if(checkIn && checkOut && cardDetails){
+      let inDate= new Date(checkIn)
+      let OutDate= new Date(checkOut)
+      let n = (OutDate - inDate)/(24*60*60*1000)
+      setNight(n)
+      let airBnbCharge=(cardDetails.rent*(7/100))
+      let tax = (cardDetails.rent*(7/100))
+      if(n>0){
+        setTotal((cardDetails.rent *(n)) + airBnbCharge + tax)
+      }
+      else{
+        setTotal(0)
+      }
     }
+  },[checkIn,checkOut,cardDetails?.rent,total])
+
+  // ============================================
+  // 🆕 SAFETY GUARD FOR NULL CARD DETAILS (ADDITION)
+  // ============================================
+  if (!cardDetails) {
+    return (
+      <div className='w-full min-h-[60vh] flex items-center justify-center text-gray-700'>
+        Loading listing details...
+      </div>
+    )
   }
-},[checkIn,checkOut,cardDetails.rent,total])
-
-
+ 
 //handle update form changes
   const handleUpdateListing=async()=>{
     setUpdating(true)
@@ -82,9 +118,24 @@ let {userData}=useContext(userDataContext)
 
     let formData = new FormData()
     formData.append("title",title)
-    formData.append("image1",backEndImage1)
-    formData.append("image2",backEndImage2)
-    formData.append("image3",backEndImage3)
+    // formData.append("image1",backEndImage1)
+    // formData.append("image2",backEndImage2)
+    // formData.append("image3",backEndImage3)
+    if (backEndImage1) {
+  formData.append("image1", backEndImage1)
+}
+
+if (backEndImage2) {
+  formData.append("image2", backEndImage2)
+}
+
+if (backEndImage3) {
+  formData.append("image3", backEndImage3)
+}
+
+
+
+    
     formData.append("description",description)
     formData.append("rent",rent)
     formData.append("city",city)
@@ -98,6 +149,7 @@ let {userData}=useContext(userDataContext)
     console.log(result)
     
     navigate("/")
+     toast.success("Listing Updated Successfully")
     //here we clear form after adding list aand move to home
       setTitle("")
       setDescription("")
@@ -114,6 +166,7 @@ let {userData}=useContext(userDataContext)
         catch(error){
         
             setUpdating(false)
+             toast.error(error.response.data.message)
             console.log(error)
     
         }
@@ -172,6 +225,45 @@ useEffect(()=>{
   setMinDate(today)
 },[])
 
+// ✨ NEW FUNCTION: Fetch booked dates from backend
+// 🔗 Calls: GET /api/booking/booked-dates/:listingId
+// 📊 Data returned: Array of {checkIn, checkOut, guest} objects
+const fetchBookedDates = async() => {
+  try {
+    let result = await axios.get(
+      serverURL + `/api/booking/booked-dates/${cardDetails._id}`
+    )
+    setBookedDates(result.data)
+    console.log("✅ Booked dates fetched:", result.data)
+  } catch(error) {
+    console.log("❌ Error fetching booked dates:", error)
+  }
+}
+
+// ✨ NEW EFFECT: Fetch booked dates when listing details change
+// ⚡ Runs whenever: Component mounts OR cardDetails._id changes
+useEffect(() => {
+  if(cardDetails._id) {
+    fetchBookedDates()
+  }
+}, [cardDetails._id])
+
+// ✨ NEW HELPER FUNCTION: Format dates nicely for display
+// Example: "2026-03-05" → "Mar 5, 2026"
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('en-US', 
+    { year: 'numeric', month: 'short', day: 'numeric' }
+  )
+}
+
+// ✨ NEW FUNCTION: Show booked dates popup when guest clicks on images
+// Shows popup ONLY if listing has booked dates
+const handleImageClick = () => {
+  if(bookedDates.length > 1) {
+    setShowBookedPopup(true)
+  }
+}
+
 
 
 
@@ -200,17 +292,20 @@ useEffect(()=>{
              {/* //three div for 3 images */}
    
    
-             <div className='w-[100%] h-[65%] md:w-[70%] md:h-[100%] overflow-hidden flex items-center justify-center border-[1px] border-[white] '>
+             {/* ✨ CLICKABLE IMAGE: Show booked dates popup when clicking */}
+             <div className='w-[100%] h-[65%] md:w-[70%] md:h-[100%] overflow-hidden flex items-center justify-center border-[1px] border-[white] cursor-pointer ' onClick={handleImageClick}>
                <img src={cardDetails.image1} alt="" className='w-[100%]' />
              </div>
    
    
              <div className='w-[100%] h-[50%] flex items-center justify-center md:w-[50%] md:h-[100%] md:flex-col '>
    
-             <div className='w-[100%] h-[100%] overflow-hidden flex items-center border-[1px]'>
+             {/* ✨ CLICKABLE IMAGE 2: Show booked dates popup when clicking */}
+             <div className='w-[100%] h-[100%] overflow-hidden flex items-center border-[1px] cursor-pointer ' onClick={handleImageClick}>
             <img src={cardDetails.image2} alt="" className='w-[100%]'  />
              </div>
-             <div className='w-[100%] h-[100%] overflow-hidden flex items-center border-[1px] '>
+             {/* ✨ CLICKABLE IMAGE 3: Show booked dates popup when clicking */}
+             <div className='w-[100%] h-[100%] overflow-hidden flex items-center border-[1px] cursor-pointer ' onClick={handleImageClick}>
                <img src={cardDetails.image3} alt="" className='w-[100%]' />
                  </div>
               </div>
@@ -273,7 +368,7 @@ useEffect(()=>{
                      <div className='w-[90%] flex items-start justify-start flex-col gap-[10px]'>
                        <label htmlFor="img1" className='text-[20px]'>Image1</label>
                         <div className='flex items-center justify-start w-[90%] h-[40px] border-[#555656] border-2 rounded-[10px]'>
-                       <input type="file" id='img1'className='w-[100%]  text-[15px] px-[10px] text-[black]' required  onChange={handleImage1} /></div>
+                       <input type="file" id='img1'className='w-[100%]  text-[15px] px-[10px] text-[black]'   onChange={handleImage1} /></div>
                      </div>
                       
        
@@ -281,7 +376,7 @@ useEffect(()=>{
                        <div className='w-[90%] flex items-start justify-start flex-col gap-[10px]'>
                        <label htmlFor="img2" className='text-[20px]'>Image2</label>
                         <div className='flex items-center justify-start w-[90%] h-[40px] border-[#555656] border-2 rounded-[10px]'>
-                       <input type="file" id='img2'className='w-[100%]  text-[15px] px-[10px] text-[black]' required  onChange={handleImage2} /></div>
+                       <input type="file" id='img2'className='w-[100%]  text-[15px] px-[10px] text-[black]'   onChange={handleImage2} /></div>
                      </div>
        
        
@@ -290,7 +385,7 @@ useEffect(()=>{
                      <div className='w-[90%] flex items-start justify-start flex-col gap-[10px]'>
                        <label htmlFor="img3" className='text-[20px]'>Image3</label>
                         <div className='flex items-center justify-start w-[90%] h-[40px] border-[#555656] border-2 rounded-[10px]'>
-                       <input type="file" id='img3'className='w-[100%]  text-[15px] px-[10px] text-[black]' required  onChange={handleImage3} /></div>
+                       <input type="file" id='img3'className='w-[100%]  text-[15px] px-[10px] text-[black]'   onChange={handleImage3} /></div>
                      </div>
        
                      
@@ -339,7 +434,16 @@ useEffect(()=>{
 
 
 
-          <form className='max-w-[450px] w-[90%] h-[450px] overflow-auto bg-[#aee884] p-[20px] rounded-lg flex items-center justify-start flex-col gap-[10px]  order-[1px] border-[#dedddd] ' onSubmit={(e)=>{e.preventDefault()}}>
+          <form className='max-w-[450px] w-[90%] h-[450px] overflow-auto bg-[#aee884] p-[20px] rounded-lg flex items-center justify-start flex-col gap-[10px]  order-[1px] border-[#dedddd] '  onSubmit={(e)=>{
+    e.preventDefault();
+
+    if(!checkIn || !checkOut){
+      alert("Please select CheckIn and CheckOut dates");
+      return;
+    }
+
+    handleBooking(cardDetails._id);
+  }}>
             <h1 className=' flex items-center justify-center text-[25px] py-[10px] w-[100%] border-b-[1px] border-[#a3a3a3]'>Confirm & Book</h1>
 
             <div className='w-[100%] h-[70%]  rounded-lg   p-[10px] '>
@@ -361,7 +465,16 @@ useEffect(()=>{
                    </div>
 
                        <div className='w-[100%] flex items-center justify-center text-nowrap'>
-                    <button className='px-[80px] py-[10px] bg-blue-600 text-[white] text-[18px] md:px-[100px]  rounded-lg   mt-[30px]'onClick={()=>handleBooking(cardDetails._id)}>Book Now</button>
+                    {/* <button className='px-[80px] py-[10px] bg-blue-600 text-[white] text-[18px] md:px-[100px]  rounded-lg   mt-[30px]'onClick={()=>handleBooking(cardDetails._id)} disabled={booking}>
+                      {booking?"Booking...":"Book Now"}
+                      </button> */}
+                          <button 
+                         type="submit"
+                    className='px-[80px] py-[10px] bg-blue-600 text-white text-[18px] md:px-[100px] rounded-lg mt-[30px]'
+                         disabled={booking}
+                         >
+                    {booking ? "Booking..." : "Book Now"}
+                     </button> 
                     </div>
        
 
@@ -399,7 +512,7 @@ useEffect(()=>{
 
              <p className='w-[100%] flex justify-between items-center px-[20px]'>
             <span className='font-semibold'>
-              {`Rs_${cardDetails.rent} x ${night} Nights`}
+              {`Rs_${cardDetails.rent} x ${night} Days`}
             </span>
             <span>{cardDetails.rent*night}</span>
 

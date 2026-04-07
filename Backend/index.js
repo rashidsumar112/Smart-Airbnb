@@ -17,6 +17,11 @@ dotenv.config()
 import userRouter from "./routes/UserRoute.js"
 import listRouter from "./routes/listRoute.js"
 import bookRouter from "./routes/bookRoute.js"
+// ============================================
+// 🤖 CHATBOT ROUTE IMPORT (ADDITION)
+// ============================================
+// Import chatbot APIs for conversational assistant and nearby listings
+import chatbotRouter from "./routes/chatbotRoute.js"
 
 
 let port= process.env.PORT || 6000
@@ -57,6 +62,13 @@ app.use("/api/listing",listRouter)
 
 //booking route
 app.use("/api/booking",bookRouter)
+
+// ============================================
+// 🤖 CHATBOT ROUTES (ADDITION)
+// ============================================
+// Path base: /api/chatbot
+// Includes: /message, /nearby, /search, /listing/:listingId
+app.use("/api/chatbot", chatbotRouter)
 
 
 

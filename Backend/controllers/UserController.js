@@ -1,6 +1,7 @@
 //importing user model
 import User from "../model/userModel.js";
 import Listing from "../model/listModel.js";
+import { cleanupExpiredBookings } from "../utils/bookingCleanup.js";
 
 
 
@@ -9,17 +10,34 @@ import Listing from "../model/listModel.js";
 //Controller function to get current authenticated user details
 export const getCurrentUser= async(req,res)=>{
  try{
+  await cleanupExpiredBookings()
+
     //get user id from req object set by AuthUser middleware
     //fetch user details from db excluding password field
+
+    //change here
   let user= await User.findById(req.userId).select("-password").populate("listing","title image1 image2 image3 description rent category city landmark isBooked host ratings").populate({
-        path: "booking",
-        populate: {
-          path: "listing",
-          model: "Listing",
-          select:
-            "title image1 image2 image3 description rent category city landmark isBooked host ratings"
-        }
-      })
+    path: "booking",
+    populate: {
+      path: "listing",
+      select:"title image1 image2 image3 description rent category city landmark isBooked host ratings"
+    }
+  })
+  user.booking = user.booking.filter(b => b.listing !== null)
+  
+  
+  // .populate("booking","title image1 image2 image3 description rent category city landmark isBooked host ratings")
+  
+  
+  
+  // .populate({
+  //   path: "booking",
+  //   populate: {
+  //     path: "listing"
+  //   }
+  // })
+  
+  // .populate("booking","title image1 image2 image3 description rent category city landmark isBooked host ratings")
   
   
   
