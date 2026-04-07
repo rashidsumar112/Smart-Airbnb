@@ -36,9 +36,9 @@ export const signUp = async(req,res)=>{
     res.cookie("token",token,{
         //we use httpOnly cookies for security
         httpOnly:true,
-        secure:true,
+        secure:process.env.NODE_ENV === "production",
         //sameSite set to strict for security
-        sameSite:"none",
+        sameSite:"strict",
         //maxAge sets the cookie's expiration time
         maxAge:7*24*60*60*1000, //7 days
     })
@@ -89,9 +89,9 @@ export const login= async(req,res)=>{
     res.cookie("token",token,{
         //we use httpOnly cookies for security
         httpOnly:true,
-        secure:true,
+        secure:process.env.NODE_ENV === "production",
         //sameSite set to strict for security
-        sameSite:"none",
+        sameSite:"strict",
         //maxAge sets the cookie's expiration time
         maxAge:7*24*60*60*1000, //7 days
     })
