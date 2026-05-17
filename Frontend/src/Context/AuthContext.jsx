@@ -4,7 +4,7 @@ import React, { createContext, useState } from 'react'
 //create context for auth data
 export const authDataContext = createContext()
 //server url for backend connection 
-let serverURL= "http://localhost:8000"
+let serverURL = "http://localhost:8000"
 
 
 
@@ -12,28 +12,28 @@ let serverURL= "http://localhost:8000"
 
 
 
-function AuthContext({children}) {
-  let[loading,setLoading]=useState(false)
+function AuthContext({ children }) {
+  let [loading, setLoading] = useState(false)
 
 
 
-let value={
-  serverURL,
-  loading,setLoading
-}
+  let value = {
+    serverURL,
+    loading, setLoading
+  }
 
 
 
 
   return (
     <div>
-        {/* //this means all the children components will have access to auth data like app.jsx here childeren is app.jsx */}
-        {/* //value provide the server url to all the children components */}
-   <authDataContext.Provider value={value}>
-    
-    {children}
+      {/* //this means all the children components will have access to auth data like app.jsx here childeren is app.jsx */}
+      {/* //value provide the server url to all the children components */}
+      <authDataContext.Provider value={value}>
 
-   </authDataContext.Provider>
+        {children}
+
+      </authDataContext.Provider>
 
     </div>
   )

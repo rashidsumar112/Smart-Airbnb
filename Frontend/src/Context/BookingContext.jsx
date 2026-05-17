@@ -67,35 +67,29 @@ setBookingData(result.data)
 
 
 
-//❌ CANCLE BOOKING - FIXED VERSION
-// This function now properly removes the booking from ALL collections:
-// 1. Deletes booking document from Booking collection
-// 2. Removes booking._id from host user's booking array
-// 3. Removes booking._id from guest user's booking array  
-// 4. Sets listing.isBooked = false
+// CANCLE BOOKING - FIXED VERSION
+
 const cancleBooking = async (id) =>{
   try{
-    // 🔧 id is the LISTING ID passed from Card component
+    //  id is the LISTING ID passed from Card component
     // Backend will use this to find the booking and perform cleanup
     let result= await axios.delete( 
       serverURL + `/api/booking/cancle/${id}`,
       {withCredentials:true}
     )
     
-    // ✅ Refresh user data to reflect changes in the UI
-    // This updates the user's booking array (removes the cancelled booking)
+
     await getCurrentUser()
     
-    // ✅ Refresh listings to show isBooked = false
-    // This updates all listings to reflect that they're no longer booked
+
     await getListing()
 
-    console.log("✅ Booking cancelled successfully:", result.data)
+    console.log(" Booking cancelled successfully:", result.data)
     toast.success("Booking Canceled Successfully")
 
   }
   catch(error){
-    console.error("❌ Error cancelling booking:", error)
+    console.error(" Error cancelling booking:", error)
     toast.error(error.response?.data?.message || "Failed to cancel booking")
   }
 }

@@ -107,25 +107,13 @@ const handleViewCard= async (id) => {
   }
 }
 
-//search handle functions
-// const handleSearch = async (data) =>{
-//   try{
-//     let result=await axios.get(serverURL + `/api/listing/search?query=${data}`)
-//     setSearchData(result.data)
 
-//   }
-//   catch(error){
-//     setSearchData(null)
-//     console.log("ERROR",error)
-
-//   }
-// }
 
 //my change
 const handleSearch = async (data) => {
   try {
 
-    // ✅ Stop request if input is empty
+    //  Stop request if input is empty
     if (!data || data.trim() === "") {
       setSearchData([])
       return;

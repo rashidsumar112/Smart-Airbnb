@@ -3,60 +3,40 @@ import User from "../model/userModel.js";
 import Listing from "../model/listModel.js";
 import { cleanupExpiredBookings } from "../utils/bookingCleanup.js";
 
-
-
-
-
 //Controller function to get current authenticated user details
-export const getCurrentUser= async(req,res)=>{
- try{
-  await cleanupExpiredBookings()
+export const getCurrentUser = async (req, res) => {
+  try {
+    await cleanupExpiredBookings();
 
     //get user id from req object set by AuthUser middleware
     //fetch user details from db excluding password field
 
     //change here
-  let user= await User.findById(req.userId).select("-password").populate("listing","title image1 image2 image3 description rent category city landmark isBooked host ratings").populate({
-    path: "booking",
-    populate: {
-      path: "listing",
-      select:"title image1 image2 image3 description rent category city landmark isBooked host ratings"
+    let user = await User.findById(req.userId)
+      .select("-password")
+      .populate(
+        "listing",
+        "title image1 image2 image3 description rent category city landmark isBooked host ratings",
+      )
+      .populate({
+        path: "booking",
+        populate: {
+          path: "listing",
+          select:
+            "title image1 image2 image3 description rent category city landmark isBooked host ratings",
+        },
+      });
+    user.booking = user.booking.filter((b) => b.listing !== null);
+
+    //If user not found
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-  })
-  user.booking = user.booking.filter(b => b.listing !== null)
-  
-  
-  // .populate("booking","title image1 image2 image3 description rent category city landmark isBooked host ratings")
-  
-  
-  
-  // .populate({
-  //   path: "booking",
-  //   populate: {
-  //     path: "listing"
-  //   }
-  // })
-  
-  // .populate("booking","title image1 image2 image3 description rent category city landmark isBooked host ratings")
-  
-  
-  
-  
-  // .populate("booking","title image1 image2 image3 description rent category city landmark isBooked host ratings")
-  //If user not found
-  if(!user){
-    return  res.status(404).json({message:"User not found"});
-  }
-   return res.status(200).json(user);
-
-
-
-
-
- }catch(error){
+    return res.status(200).json(user);
+  } catch (error) {
     //handle errors
-   return res.status(500).json({message:`Error in fetching current user: ${error.message}`})
- }
-
-
-} 
+    return res
+      .status(500)
+      .json({ message: `Error in fetching current user: ${error.message}` });
+  }
+};

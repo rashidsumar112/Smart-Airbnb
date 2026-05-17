@@ -10,16 +10,6 @@ function MyBooking() {
    let {userData}=useContext(userDataContext)
 
 
-
-    console.log("userData.booking raw:", userData?.booking)
-
-console.log("userData.booking raw:", userData?.booking);
-  userData?.booking?.forEach(b => console.log("Booking _id:", b._id, "Listing:", b.listing));
-
-
-   //this my code for error check
-   console.log("userData.booking:", userData?.booking)
-
 if (userData?.booking?.length > 0) {
   console.log("First booking:", userData.booking[0])
 }
@@ -37,42 +27,12 @@ if (userData?.booking?.length > 0) {
 
         <div className='w-[100%] h-[90%] flex items-center justify-center gap-[20px] flex-wrap mt-[30px]'>
 
-     {/* {userData.booking.map((list)=>(
-                   <Card title={list.title} landmark={list.landmark} city={list.city} image1={list.image1} image2={list.image2} image3={list.image3} rent={list.rent} id={list._id} isBooked={list.isBooked} host={list.host} ratings={list.ratings}/>
-                 )
-           
-                 )} */}
-
-                 {/* //change here */}
-
-{/* {userData?.booking?.length > 0 ? (
-  userData.booking.map((book) => (
-    <Card
-      key={book._id}
-      title={book.listing.title}
-      city={book.listing.city}
-      landmark={book.listing.landmark}
-      image1={book.listing.image1}
-      image2={book.listing.image2}
-      image3={book.listing.image3}
-      rent={book.totalRent}
-      id={book.listing._id}
-      isBooked={true}
-      host={book.listing.host}
-      ratings={book.listing.ratings}
-      
-    />
-  ))
-) : (
-  <p className="text-gray-500 text-xl">No bookings found</p>
-)} */}
-
-
+    
 
 {/* //this working */}
 
-{/* ⭐ NEW: Pass guest parameter so guests can cancel their own bookings */}
-{/* 🚫 ⏰ NEW: Pass createdAt for 1-day cancellation deadline check */}
+{/*  NEW: Pass guest parameter so guests can cancel their own bookings */}
+{/*  NEW: Pass createdAt for 1-day cancellation deadline check */}
 {userData?.booking?.length > 0 ? (
   userData.booking.map(book => (
       <Card
@@ -91,19 +51,18 @@ if (userData?.booking?.length > 0) {
         guest={book.guest}
         ratings={book.listing.ratings}
         createdAt={book.createdAt}
+        bookingId={book._id}
        
       />
     ))
 ) : (
-  <p className="text-gray-500 text-xl">No bookings found</p>
+  <h1 className='text-[30px] font-semibold text-gray-500'>
+          No Bookings Found
+        </h1>
 )}
 
 
-{/* {userData.booking?.map((list)=>(
-              <Card title={list.title} landmark={list.landmark} city={list.city} image1={list.image1} image2={list.image2} image3={list.image3} rent={list.rent} id={list._id} isBooked={list.isBooked} host={list.host} ratings={list.ratings}/>
-            )
-      
-            )} */}
+
 
         </div>
         

@@ -10,26 +10,34 @@ export const createBooking=async(req,res)=>{
 
         let {id}=req.params
         let {checkIn,checkOut,totalRent}=req.body
+    const startDate = new Date(checkIn)
+    const endDate = new Date(checkOut)
 
         let listing= await Listing.findById(id)
         if(!listing){
             return res.status(404).json({message:"Listing is not found"})
         }
 
-      //change
-      let existingBooking = await Booking.findOne({ listing: id, guest: req.userId })
-    if (existingBooking) {
-      return res.status(400).json({ message: "You have already booked this listing" })
-    }
-    //change above
-
-
-
-        if(new Date(checkIn) >= new Date(checkOut)){
+      // Allow same guest to create multiple bookings as long as date ranges don't overlap.
+      if(startDate >= endDate){
             return res.status(400).json({message:"Invalid checkIn/checkOut date"})
         } 
-        if(listing.isBooked){
-            return res.status(400).json({message:"Listing is already Booked"})
+
+      const overlappingBooking = await Booking.findOne({
+        listing: id,
+        status: "booked",
+        checkIn: { $lt: endDate },
+        checkOut: { $gt: startDate }
+      })
+
+      if(overlappingBooking){
+        return res.status(409).json({
+          message:"These dates are already booked",
+          bookedRange: {
+            checkIn: overlappingBooking.checkIn,
+            checkOut: overlappingBooking.checkOut
+          }
+        })
         }
         let booking=await Booking.create({
             checkIn,
@@ -57,8 +65,8 @@ export const createBooking=async(req,res)=>{
     return res.status(201).json(booking)
 }
 catch(error){
-     return res.status(201).json({message:"booking error"})
      console.log(error)
+  return res.status(500).json({message:"booking error"})
 
 
 }
@@ -69,28 +77,31 @@ catch(error){
 
 
 
-//🔧 FIXED: for booking cancle - NOW PROPERLY DELETES BOOKING FROM ALL COLLECTIONS
-// ⭐ NEW: Both HOST and GUEST can cancel the booking
+// FIXED: for booking cancle - NOW PROPERLY DELETES BOOKING FROM ALL COLLECTIONS
+//  NEW: Both HOST and GUEST can cancel the booking
 export const cancleBooking = async(req,res)=>{
   try{
-   // 📌 req.params.id is the LISTING ID (from frontend Card component)
+   //  req.params.id is the LISTING ID (from frontend Card component)
    let {id}=req.params
 
-   // 1️⃣ FIND THE BOOKING DOCUMENT using listing ID
-   // This is crucial because we need the booking._id to remove it from users and Booking collection
-   let booking = await Booking.findOne({listing:id})
+  // FIND THE BOOKING DOCUMENT using booking ID first, then fall back to listing ID
+  // This supports both booking-level cancellation (My Booking page) and listing-level cancellation
+  let booking = await Booking.findById(id)
+  if(!booking){
+   booking = await Booking.findOne({listing:id})
+  }
    
    if(!booking){
     return res.status(404).json({message:"Booking not found"})
    }
 
-   // ⭐ NEW: AUTHORIZATION CHECK - Only host or guest can cancel
+   //  NEW: AUTHORIZATION CHECK - Only host or guest can cancel
    // This prevents unauthorized users from cancelling other people's bookings
    if(booking.host.toString() !== req.userId && booking.guest.toString() !== req.userId){
     return res.status(403).json({message:"You are not authorized to cancel this booking"})
    }
 
-  // 🚫 ⏰ NEW CHECK: PREVENT GUEST FROM CANCELLING AFTER 1 HOUR
+  //  NEW CHECK: PREVENT GUEST FROM CANCELLING AFTER 1 HOUR
    // Only applies to GUEST users (host can cancel anytime)
    const isGuest = booking.guest.toString() === req.userId
    const bookingCreatedTime = new Date(booking.createdAt).getTime()
@@ -100,33 +111,43 @@ export const cancleBooking = async(req,res)=>{
    
   if(isGuest && timeDifference > oneHourInMilliseconds) {
     return res.status(403).json({
-    message: "❌ Guests cannot cancel bookings after 1 hour of booking creation",
+    message: " Guests cannot cancel bookings after 1 hour of booking creation",
       hoursElapsed: Math.floor(timeDifference / (60 * 60 * 1000))
     })
    }
 
-   // 2️⃣ UPDATE LISTING - set isBooked to false and clear guest reference
+   //  UPDATE LISTING - keep it booked only if other active bookings still exist
+   const remainingBooking = await Booking.findOne({
+     listing: booking.listing,
+     status: "booked",
+     checkOut: { $gte: new Date() },
+     _id: { $ne: booking._id }
+   })
+
    let listing = await Listing.findByIdAndUpdate(
-     id,
-     {isBooked:false, guest:null},
+     booking.listing,
+     {
+       isBooked: !!remainingBooking,
+       guest: remainingBooking ? remainingBooking.guest : null
+     },
      {new:true}
    )
 
-   // 3️⃣ REMOVE BOOKING ID FROM HOST USER - ✅ NOW USING CORRECT booking._id
+   //  REMOVE BOOKING ID FROM HOST USER 
    await User.findByIdAndUpdate(
      booking.host,
-     {$pull:{booking:booking._id}},  // ✅ FIXED: Use booking._id NOT listing._id
+     {$pull:{booking:booking._id}},  // FIXED: Use booking._id NOT listing._id
      {new:true}
    )
 
-   // 4️⃣ REMOVE BOOKING ID FROM GUEST USER - ⭐ THIS WAS MISSING! 
+   //  REMOVE BOOKING ID FROM GUEST USER  
    await User.findByIdAndUpdate(
      booking.guest,
-     {$pull:{booking:booking._id}},  // ⭐ Essential: Guest user must also have booking removed
+     {$pull:{booking:booking._id}},  // Essential: Guest user must also have booking removed
      {new:true}
    )
 
-   // 5️⃣ DELETE THE BOOKING DOCUMENT FROM BOOKING COLLECTION - ⭐ THIS WAS MISSING!
+   //  DELETE THE BOOKING DOCUMENT FROM BOOKING COLLECTION -  THIS WAS MISSING!
    // This ensures the booking record is completely removed from DB
    await Booking.findByIdAndDelete(booking._id)
 
@@ -144,45 +165,12 @@ export const cancleBooking = async(req,res)=>{
   }
 }
 
-//my change
-// export const cancleBooking = async (req, res) => {
-//   try {
-//     const { id } = req.params; // booking _id
-
-//     // 1️⃣ Find the booking
-//     const booking = await Booking.findById(id);
-//     if (!booking) return res.status(404).json({ message: "Booking not found" });
-
-//     // 2️⃣ Only host or guest can cancel
-//     if (booking.host.toString() !== req.userId && booking.guest.toString() !== req.userId) {
-//       return res.status(403).json({ message: "You cannot cancel this booking" });
-//     }
-
-//     // 3️⃣ Update listing
-//     await Listing.findByIdAndUpdate(booking.listing, {
-//       isBooked: false,
-//       guest: null
-//     });
-
-//     // 4️⃣ Remove booking from host and guest
-//     await User.findByIdAndUpdate(booking.host, { $pull: { booking: booking._id } });
-//     await User.findByIdAndUpdate(booking.guest, { $pull: { booking: booking._id } });
-
-//     // 5️⃣ Delete booking
-//     await Booking.findByIdAndDelete(id);
-
-//     return res.status(200).json({ message: "Booking cancelled successfully" });
-
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ message: "Cancel booking failed" });
-//   }
-// };
 
 
-// ✨ NEW FEATURE: Get all booked dates for a specific listing
-// 📅 This endpoint returns all booked date ranges so guests can see when listing is unavailable
-// 🔗 Called by: Frontend ViewCard.jsx to show guest which dates are already booked
+
+//  NEW FEATURE: Get all booked dates for a specific listing
+//  This endpoint returns all booked date ranges so guests can see when listing is unavailable
+//  Called by: Frontend ViewCard.jsx to show guest which dates are already booked
 export const getBookedDates = async(req, res) => {
   try {
     // Ensure old bookings are removed before returning date blocks
@@ -190,21 +178,21 @@ export const getBookedDates = async(req, res) => {
 
     let { id } = req.params  // Listing ID from URL
     
-    // 🔍 Find all BOOKED bookings for this listing (exclude cancelled ones)
+    //  Find all BOOKED bookings for this listing (exclude cancelled ones)
     let bookings = await Booking.find({
       listing: id,
       status: "booked",  // Only show active bookings, not cancelled ones
       checkOut: { $gte: new Date() } // Prevent past bookings from showing as unavailable
     })
     
-    // 📦 Extract just the date ranges we need for frontend display
+    //  Extract just the date ranges we need for frontend display
     let bookedDates = bookings.map(booking => ({
       checkIn: booking.checkIn,
       checkOut: booking.checkOut,
       guest: booking.guest
     }))
     
-    // ✅ Return the array of booked dates
+    //  Return the array of booked dates
     return res.status(200).json(bookedDates)
   } catch(error) {
     console.log("Error fetching booked dates:", error)

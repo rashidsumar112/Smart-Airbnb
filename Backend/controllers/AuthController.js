@@ -25,8 +25,13 @@ export const signUp = async(req,res)=>{
     }
 
 
-    //here we hash the password before saving to db
-    let hashPassword=await bcrypt.hash(password,10);
+     // Validate password minimum length (must be at least 8 characters)
+     if (!password || String(password).length < 8) {
+         return res.status(400).json({ message: "password must be minimum 8 character or more" });
+     }
+
+     //here we hash the password before saving to db
+     let hashPassword=await bcrypt.hash(password,10);
     // Here we create new user if not exists
     //Here User is from userModel.js
     let user=await User.create({name,email,password:hashPassword});
@@ -70,6 +75,7 @@ export const login= async(req,res)=>{
     
     let {email,password}= req.body;
     //if check user  exists
+    //here .populate is used to fetch the listing details of the user along with user details in login response. it will populate the listing field in user document with the specified fields from the listing collection (title, image1, image2, image3, description, rent, category, city, landmark). this allows us to get the user's listings information directly in the login response without needing a separate API call to fetch listings later.
     let user=await User.findOne({email}).populate("listing","title image1 image2 image3 description rent category city landmark")
 
 
@@ -80,7 +86,7 @@ export const login= async(req,res)=>{
  //compare password with hashed password
     let isMatch= await bcrypt.compare(password,user.password);
     if(!isMatch){
-        return res.status(400).json({message:"incoorect password"}) 
+        return res.status(400).json({message:"incorrect password"}) 
     }
     
     //Generate Token for user again for login

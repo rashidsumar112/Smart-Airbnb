@@ -27,10 +27,18 @@ export const cleanupExpiredBookings = async () => {
   ];
 
   if (listingIds.length) {
-    await Listing.updateMany(
-      { _id: { $in: listingIds } },
-      { $set: { isBooked: false, guest: null } }
-    );
+    for (const listingId of listingIds) {
+      const remainingBooking = await Booking.findOne({
+        listing: listingId,
+        status: "booked",
+        checkOut: { $gte: now },
+      }).select("guest");
+
+      await Listing.findByIdAndUpdate(listingId, {
+        isBooked: !!remainingBooking,
+        guest: remainingBooking ? remainingBooking.guest : null,
+      });
+    }
   }
 
   if (hostIds.length) {

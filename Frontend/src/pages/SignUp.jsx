@@ -33,6 +33,14 @@ const handleSignUp=async(e)=>{
 try{
   //prevent the default form submission behavior
   e.preventDefault();
+  // Client-side password length validation (minimum 8 characters)
+  if (!password || password.length < 8) {
+    setLoading(false);
+    // Show English-only error message as requested
+    toast.error("password must be minimum 8 character or more");
+    return;
+  }
+
   //code for signup logic will go here
   let result= await axios.post(serverURL+"/api/auth/signup",{
     //data to be sent to backend for signup

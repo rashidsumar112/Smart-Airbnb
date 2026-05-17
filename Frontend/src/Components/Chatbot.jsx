@@ -6,20 +6,15 @@ import { useNavigate } from 'react-router-dom';
 import { userDataContext } from '../Context/UserContext';
 import axios from 'axios';
 
-// ============================================
-// 🤖 CHATBOT COMPONENT - Smart Airbnb Assistant
-// ============================================
-// This component provides a beautiful chat interface for users to:
-// - Ask questions about properties
-// - Get location-based suggestions
-// - Get help with listings and bookings
-// - Real-time conversation with AI assistant
+
+// CHATBOT COMPONENT - Smart Airbnb Assistant
+
 
 function Chatbot({ isOpen, onClose }) {
-  // ============================================
+
   // STATE MANAGEMENT
-  // ============================================
-  
+ 
+
   // Messages state - stores chat history
   // Each message has: id, text, sender ('user' or 'bot'), timestamp
   const [messages, setMessages] = useState([
@@ -30,30 +25,30 @@ function Chatbot({ isOpen, onClose }) {
       timestamp: new Date()
     }
   ]);
-  
+
   // User input state - current message being typed
   const [inputValue, setInputValue] = useState('');
-  
+
   // Loading state - shows typing indicator when bot is responding
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Reference for auto-scrolling to latest message
   const messagesEndRef = useRef(null);
-  
+
   // Get server URL from auth context for API calls
   const { serverURL } = useContext(authDataContext);
   const { userData } = useContext(userDataContext);
   const navigate = useNavigate();
 
-  // ============================================
-  // 🆕 CHATBOT LISTINGS STATE (ADDITION)
-  // ============================================
+ 
+  //  CHATBOT LISTINGS STATE (ADDITION)
+
   // Stores listing cards that chatbot should show in chat panel
   const [listingResults, setListingResults] = useState([]);
 
-  // ============================================
+ 
   // AUTO-SCROLL FUNCTIONALITY
-  // ============================================
+ 
   // Automatically scroll to bottom when new messages arrive
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -63,13 +58,10 @@ function Chatbot({ isOpen, onClose }) {
     scrollToBottom();
   }, [messages]);
 
-  // ============================================
+  
   // SEND MESSAGE HANDLER
-  // ============================================
-  // Handles user message submission
-  // TODO: Integrate with Gemini API for intelligent responses
-  // TODO: Integrate with Google Maps API for location detection
-  // TODO: Integrate with Database for listings fetch
+
+  
   const handleSendMessage = async () => {
     if (inputValue.trim() === '') return;
 
@@ -89,7 +81,7 @@ function Chatbot({ isOpen, onClose }) {
 
     try {
       // ============================================
-      // 🆕 FEATURE: DETECT "NEAR ME" INTENT ONLY (ADDITION)
+      //  FEATURE: DETECT "NEAR ME" INTENT ONLY (ADDITION)
       // ============================================
       // As requested: location detect only when user says near me / nearby
       const lowerMessage = inputValue.toLowerCase();
@@ -101,7 +93,7 @@ function Chatbot({ isOpen, onClose }) {
         lowerMessage.includes('mere kareeb');
 
       // ============================================
-      // 🆕 FEATURE: LOCATION-BASED LISTINGS FLOW (ADDITION)
+      //  FEATURE: LOCATION-BASED LISTINGS FLOW (ADDITION)
       // ============================================
       if (isNearMeIntent) {
         // Step 1: Try browser geolocation (free, no Google Maps billing)
@@ -158,9 +150,9 @@ function Chatbot({ isOpen, onClose }) {
         return;
       }
 
-      // ============================================
-      // 🆕 FEATURE: GENERAL GEMINI ASSISTANT FLOW (ADDITION)
-      // ============================================
+     
+      //  FEATURE: GENERAL GEMINI ASSISTANT FLOW (ADDITION)
+      
       // For booking/listing/support messages (host + guest)
       const hasHostListings = Array.isArray(userData?.listing) && userData.listing.length > 0;
       const inferredRole = hasHostListings ? 'host' : 'guest';
@@ -190,7 +182,7 @@ function Chatbot({ isOpen, onClose }) {
       const errorMessage = {
         id: messages.length + 2,
         // ============================================
-        // 🆕 REQUIRED FALLBACK ERROR MESSAGE (ADDITION)
+        //  REQUIRED FALLBACK ERROR MESSAGE (ADDITION)
         // ============================================
         text: 'Unable to fetch data right now. Please try again.',
         sender: 'bot',
@@ -218,7 +210,7 @@ function Chatbot({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   // ============================================
-  // 🆕 NAVIGATION HANDLER FOR BOOK BUTTON (ADDITION)
+  //  NAVIGATION HANDLER FOR BOOK BUTTON (ADDITION)
   // ============================================
   // Redirect user to listing detail page where Reserve flow already exists
   const handleReserveFromChat = async (listingId) => {
@@ -243,7 +235,7 @@ function Chatbot({ isOpen, onClose }) {
   };
 
   // ============================================
-  // ✅ AUTHENTICATION CHECK - Only logged-in users
+  //  AUTHENTICATION CHECK - Only logged-in users
   // ============================================
   // If user is not logged in, show login prompt
   if (!userData) {
@@ -285,35 +277,21 @@ function Chatbot({ isOpen, onClose }) {
   return (
     // ============================================
     // OUTER CONTAINER - Fixed position, bottom-right
-    // ============================================
-    // Position: bottom-20 (above WhatsApp icon area)
-    // Size: 90vw on mobile, max 450px on desktop
-    // Height: 65vh with max 580px
-    // Z-index: 50 (above all other elements)
+    
     <div className="fixed bottom-20 right-6 z-[50] md:bottom-24 md:right-8">
-      
+
       {/* 
         ============================================
         MAIN CHAT WINDOW - Beautiful Card Design
         ============================================
-        Features:
-        - Rounded corners (rounded-3xl)
-        - Gradient background to white
-        - Shadow effect (shadow-2xl)
-        - Border with green accent (border-[#aee884]/20)
-        - Smooth slide-up animation
+       
       */}
       <div className="w-[90vw] max-w-[450px] h-[65vh] max-h-[580px] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-slideUp border-2 border-[#aee884]/20">
-        
+
         {/* 
           ============================================
           HEADER SECTION - Green Gradient
-          ============================================
-          Features:
-          - 3-color gradient (light to dark green)
-          - House emoji + title + subtitle
-          - Close button with hover animation
-          - Shadow for depth
+      
         */}
         <div className="bg-gradient-to-r from-[#aee884] via-[#9fd66e] to-[#8fd966] px-6 py-5 flex items-center justify-between shadow-md">
           <div>
@@ -321,10 +299,7 @@ function Chatbot({ isOpen, onClose }) {
             <p className="text-xs text-gray-700 mt-1">Your Personal Assistant</p>
           </div>
           {/* 
-            Close Button Features:
-            - Smooth background transition
-            - Scale up on hover
-            - Dark color text
+           
           */}
           <button
             onClick={onClose}
@@ -337,12 +312,7 @@ function Chatbot({ isOpen, onClose }) {
         {/* 
           ============================================
           MESSAGES AREA - Chat Display
-          ============================================
-          Features:
-          - Auto-scrolling to latest message
-          - Gradient background (light at top)
-          - Padding for comfortable spacing
-          - Messages appear with fade-in animation
+         
         */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-gray-50 to-white">
           {messages.map((message) => (
@@ -354,28 +324,18 @@ function Chatbot({ isOpen, onClose }) {
               className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} animate-fadeInMessage`}
             >
               <div
-                className={`max-w-xs px-5 py-3 rounded-2xl ${
-                  message.sender === 'user'
+                className={`max-w-xs px-5 py-3 rounded-2xl ${message.sender === 'user'
                     // USER MESSAGE STYLING:
-                    // - Gradient background (green)
-                    // - Bold dark text
-                    // - Rounded on top-left (sharp corner on right)
-                    // - Shadow for elevation
+                   
                     ? 'bg-gradient-to-r from-[#aee884] to-[#9fd66e] text-gray-900 rounded-br-none shadow-md font-medium'
                     // BOT MESSAGE STYLING:
-                    // - White background with green border
-                    // - Gray text
-                    // - Rounded on top-right (sharp corner on left)
-                    // - Subtle shadow
+                  
                     : 'bg-white text-gray-800 border-2 border-[#aee884]/30 rounded-bl-none shadow-sm'
-                }`}
+                  }`}
               >
                 <p className="text-sm md:text-base leading-relaxed">{message.text}</p>
                 {/* 
-                  Timestamp Display:
-                  - Small gray text
-                  - Formatted as HH:MM
-                  - Slightly transparent
+                 
                 */}
                 <span className="text-xs text-gray-600 mt-2 block opacity-70">
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -388,11 +348,7 @@ function Chatbot({ isOpen, onClose }) {
             ============================================
             LOADING INDICATOR - Bouncing Dots
             ============================================
-            Shows when bot is thinking/fetching data
-            Features:
-            - 3 green dots with bounce animation
-            - Delayed animation for wave effect
-            - Appears inside white bubble like bot message
+           
           */}
           {isLoading && (
             <div className="flex justify-start animate-fadeInMessage">
@@ -411,10 +367,9 @@ function Chatbot({ isOpen, onClose }) {
 
           {/* 
             ============================================
-            🆕 LISTING CARDS INSIDE CHAT (ADDITION)
+             LISTING CARDS INSIDE CHAT (ADDITION)
             ============================================
-            Shows DB listing results directly in chatbot panel
-            Includes Reserve button to continue booking on website flow
+          
           */}
           {listingResults.length > 0 && (
             <div className="space-y-3 mt-2">
@@ -440,7 +395,7 @@ function Chatbot({ isOpen, onClose }) {
                     ============================================
                     🆕 RESERVE BUTTON FROM CHAT (ADDITION)
                     ============================================
-                    User clicks -> opens listing page -> user can reserve
+                 
                   */}
                   <button
                     onClick={() => handleReserveFromChat(listing.id)}
@@ -458,23 +413,11 @@ function Chatbot({ isOpen, onClose }) {
           ============================================
           INPUT AREA - Message Composer
           ============================================
-          Features:
-          - Gradient background (subtle)
-          - Green border at top
-          - Input field with green focus
-          - Gradient send button
-          - Smooth animations and transitions
+         
         */}
         <div className="border-t-2 border-[#aee884]/20 p-5 bg-gradient-to-b from-white to-gray-50 shadow-lg">
           <div className="flex gap-3 items-center">
-            {/* 
-              INPUT FIELD Features:
-              - Rounded full (pill shape)
-              - Green border on focus
-              - Focus ring with green color
-              - Placeholder text
-              - Full width flex
-            */}
+           
             <input
               type="text"
               value={inputValue}
@@ -483,16 +426,8 @@ function Chatbot({ isOpen, onClose }) {
               placeholder="Type your message..."
               className="flex-1 px-5 py-3 border-2 border-[#aee884]/30 rounded-full outline-none focus:border-[#aee884] focus:ring-3 focus:ring-[#aee884]/20 transition text-gray-800 placeholder-gray-500 bg-white"
             />
-            
-            {/* 
-              SEND BUTTON Features:
-              - Gradient background (light to medium green)
-              - Hover effect (reverse gradient)
-              - Disabled state (gray)
-              - Scale up on hover, scale down on click
-              - Bold green color
-              - Smooth transitions
-            */}
+
+           
             <button
               onClick={handleSendMessage}
               disabled={inputValue.trim() === '' || isLoading}
@@ -508,8 +443,7 @@ function Chatbot({ isOpen, onClose }) {
         ============================================
         CUSTOM ANIMATIONS & STYLES
         ============================================
-        All the smooth animations and transitions
-        for a modern, smooth user experience
+      
       */}
       <style>{`
         /* 

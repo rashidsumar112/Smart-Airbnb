@@ -11,7 +11,7 @@ import axios from 'axios'
 
 
 // 🎫 Card accepts both host and guest to allow cancellation from both sides
-function Card({title,landmark,image1,image2,image3,rent,city,id,ratings,isBooked,host,guest,createdAt}) {
+function Card({title,landmark,image1,image2,image3,rent,city,id,ratings,isBooked,host,guest,createdAt,bookingId}) {
   let navigate=useNavigate()
   let {serverURL}=useContext(authDataContext)
 
@@ -21,30 +21,16 @@ let [popUp,setPopUp]=useState(false)
 let [errorPopUp,setErrorPopUp]=useState(false) // 🚫 ⏰ NEW: Error popup for expired cancellation
 let {cancleBooking}=useContext(BookingDataContext)
 
-// ✨ NEW: State for booked dates popup
-let [showBookedPopup, setShowBookedPopup] = useState(false)
 let [bookedDates, setBookedDates] = useState([])
 
 // ✨ NEW: Fetch booked dates when card mounts
 useEffect(() => {
   if(isBooked && id) {
     fetchBookedDates()
+  } else {
+    setBookedDates([])
   }
 }, [isBooked, id])
-
-// 🔒🔒🔒 NEW: AUTO-CLOSE POPUP FOR HOST & CURRENT GUEST 🔒🔒🔒
-// Make sure popup NEVER shows for host or the guest who booked it
-useEffect(() => {
-  if(isBooked && userData) {
-    const isHost = host === userData._id
-    const isCurrentGuest = guest === userData._id
-    
-    // Close popup if current user is host or the guest who booked
-    if((isHost || isCurrentGuest) && showBookedPopup) {
-      setShowBookedPopup(false) // 💬 Auto-close for host/current guest
-    }
-  }
-}, [isBooked, userData, host, guest, showBookedPopup])
 
 // ✨ NEW FUNCTION: Fetch booked dates from backend
 const fetchBookedDates = async() => {
@@ -64,6 +50,12 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('en-US', 
     { year: 'numeric', month: 'short', day: 'numeric' }
   )
+}
+
+// Return full list of booked ranges (array of strings)
+const getBookedRanges = () => {
+  if(!bookedDates.length) return []
+  return bookedDates.map((p) => `${formatDate(p.checkIn)} - ${formatDate(p.checkOut)}`)
 }
 
 // 🚫 ⏰ NEW: CHECK IF 1 HOUR HAS PASSED SINCE BOOKING CREATION
@@ -101,7 +93,7 @@ const getTimeRemainingMessage = () => {
   const hoursRemaining = Math.floor(timeRemaining / (60 * 60 * 1000))
   const minutesRemaining = Math.floor((timeRemaining % (60 * 60 * 1000)) / (60 * 1000))
   
-  return `Cancel within ${hoursRemaining}h ${minutesRemaining}m`
+  return `You Can Cancel only within ${hoursRemaining}h ${minutesRemaining}m`
 }
 
 //this function is for make card clickable
@@ -109,27 +101,6 @@ const getTimeRemainingMessage = () => {
 const handleClick=()=>{
  
   if(userData){
-    // ✨ UPDATED: If listing is booked, show popup ONLY for new guests (not for host or current guest)
-    if(isBooked) {
-      const isHost = host === userData._id
-      const isCurrentGuest = guest === userData._id
-      
-      // ⭐⭐⭐ KEY CHANGE: ONLY show booked popup for NEW GUESTS ⭐⭐⭐
-      // - NEW GUEST (not host, not current guest) → Shows "Already Booked" popup ✅
-      // - HOST (who listed it) → Shows "Cancel Booking" button ✅
-      // - CURRENT GUEST (who booked it) → Shows "Cancel Booking" button ✅
-      if(!isHost && !isCurrentGuest) {
-        setShowBookedPopup(true) // 💬 Show booked dates popup ONLY to new guests
-        return
-      }
-      
-      // 🔒🔒🔒 NEW FIX: DISABLE CARD CLICK FOR HOST & CURRENT GUEST 🔒🔒🔒
-      // When host or guest views their booked listing, the card is NOT clickable
-      // Only the "Cancel Booking" button will work - nothing else
-      if(isHost || isCurrentGuest) {
-        return // ⛔ Disable card navigation completely - only cancel button works
-      }
-    }
     handleViewCard(id)
   }
   else{
@@ -145,50 +116,22 @@ const handleClick=()=>{
 
 
 {/* //this for showing booked on card */}
-{ isBooked && <div className='text-[green] bg-[white] rounded-lg absolute flex items-center justify-center right-1 top-1 gap-[5px] p-[5px]'><GiConfirmed className='w-[20px] h-[20px] text-[green]' />Booked</div>}
- {/* isBooked && host == userData?._id && */}
-
-{/* ✨ NEW: Popup for already booked listings */}
-{showBookedPopup &&
-<div className='w-[320px] bg-[#fff8dc] absolute top-[50px] left-[-10px] rounded-lg border-2 border-[#ff6b6b] shadow-lg z-[100] p-[15px]'>
-  <div className='w-[100%] text-center mb-[10px]'>
-    <div className='text-[16px] font-bold text-[#d32f2f] mb-[10px]'>
-      ⚠️ This listing is already booked!
-    </div>
-    <div className='text-[14px] text-[#666] mb-[15px]'>
-      Booked dates:
-    </div>
-   
-    {/* Display all booked dates */}
-    <div className='flex flex-col gap-[8px] mb-[15px]'>
-      {bookedDates && bookedDates.length > 0 ? (
-        bookedDates.map((period, idx) => (
-          <div key={idx} className='bg-[#ffe0e0] rounded p-[8px] text-[13px]'>
-            <p className='text-[#d32f2f] font-semibold'>
-              {formatDate(period.checkIn)} - {formatDate(period.checkOut)}
-            </p>
-          </div>
-        ))
-      ) : (
-        <p className='text-[13px] text-[#666]'>Checking availability...</p>
-      )}
-    </div>
-
-    <div className='text-[13px] text-[#ff6b6b] font-semibold mb-[10px]'>
-      📅 Please Comes after above Booked Dates to book this listing
-    </div>
+{ isBooked && <div className='text-[green] bg-[white] rounded-lg absolute flex flex-col items-start justify-center right-1 top-1 gap-[4px] p-[6px] max-w-[220px] text-left'>
+  <div className='flex items-center justify-start gap-[6px] w-full'>
+    <GiConfirmed className='w-[18px] h-[18px] text-[green]' />
+    <span className='font-semibold text-[13px]'>Booked</span>
   </div>
-  
-  <button 
-    className='w-[100%] px-[15px] py-[8px] bg-[#d32f2f] text-[white] rounded-lg hover:bg-[#b71c1c] text-[14px] font-semibold' 
-    onClick={(e) => {
-      e.stopPropagation()
-      setShowBookedPopup(false)
-    }}
-  >
-    Close
-  </button>
+  {bookedDates.length > 0 && (
+    <div className='text-[11px] text-[#666] max-h-[96px] overflow-auto w-[100%] mt-[4px]'>
+      {getBookedRanges().map((r, idx) => (
+        <div key={idx} className='leading-[1.1]'>
+          {r}
+        </div>
+      ))}
+    </div>
+  )}
 </div>}
+ {/* isBooked && host == userData?._id && */}
 
 {/* for showing Cancle booking message */}
 {/* 📝 This button appears when: isBooked=true AND (current user is the host OR current user is the guest) */}
@@ -240,7 +183,7 @@ const handleClick=()=>{
 
   <div className='w-[100%] h-[50%] text-[18px] font-semibold flex items-start justify-center gap-[10px] text-[#986b6b]'>
     Are You Sure? <button className='px-[20px] bg-[red] text-[white] rounded-lg hover:bg-slate-600' onClick={()=>{
-      cancleBooking(id);setPopUp(false)}}>Yes</button>
+      cancleBooking(bookingId || id);setPopUp(false)}}>Yes</button>
 
     <button className='px-[10px] bg-[red] text-[white] rounded-lg hover:bg-slate-600' onClick={()=>setPopUp(false)} >No</button>
   </div> 
@@ -273,7 +216,7 @@ const handleClick=()=>{
         <span className='flex items-center justify-center gap-[5px]'><FaStar  className='text-[#eb6262]'/>{ratings}</span>
         </div>
          <span className='text-[15px] w-[80%] text-ellipsis overflow-hidden text-nowrap'>{title}</span>
-          <span className='text-[16px] font-semibold text-[#986b6b]'> Rs {rent} Per Day</span>
+          <span className='text-[16px] font-semibold text-[#986b6b]'> Rs {rent} Per Night</span>
 
 
       </div>

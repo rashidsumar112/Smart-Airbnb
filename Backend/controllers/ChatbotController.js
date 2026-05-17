@@ -5,6 +5,9 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+
+
+
 const CATEGORY_ALIASES = {
   farmhouse: ["farmhouse", "farm house", "farm"],
   room: ["room", "rooms"],
@@ -54,6 +57,63 @@ const levenshteinDistance = (a = "", b = "") => {
   }
 
   return dp[aa.length][bb.length];
+};
+
+// Simple language detection: prefer the actual message script over browser preferences
+const detectLanguage = (text = "") => {
+  try {
+    const s = String(text || "");
+    // Urdu/Arabic/Persian block
+    if (/[\u0600-\u06FF]/.test(s)) return "ur";
+
+    // Latin letters indicate English or another Roman-script language.
+    // For this chatbot, treat that as English unless Urdu script is present.
+    if (/[A-Za-z]/.test(s)) return "en";
+  } catch (e) {
+    // ignore
+  }
+  return "en";
+};
+
+// Determine preferred language from explicit request overrides first,
+// then infer from the actual message, and only then fall back to browser headers.
+const getPreferredLang = (req, incomingText = "") => {
+  try {
+    if (req) {
+      const bodyLang = req.body?.lang;
+      if (bodyLang && String(bodyLang).toLowerCase().startsWith("ur")) return "ur";
+      if (bodyLang && String(bodyLang).toLowerCase().startsWith("en")) return "en";
+
+      const queryLang = req.query?.lang;
+      if (queryLang && String(queryLang).toLowerCase().startsWith("ur")) return "ur";
+      if (queryLang && String(queryLang).toLowerCase().startsWith("en")) return "en";
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  const messageLang = detectLanguage(incomingText);
+  if (messageLang === "ur") return "ur";
+  if (messageLang === "en") return "en";
+
+  try {
+    const accept = req?.headers?.["accept-language"] || req?.headers?.["Accept-Language"];
+    if (accept) {
+      const a = String(accept).toLowerCase();
+      if (a.includes("ur") || a.includes("pa") || a.includes("ar")) return "ur";
+      if (a.includes("en")) return "en";
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  return "en";
+};
+
+// Choose appropriate localized message based on incoming user text or explicit preferred language
+const chooseLangResponse = (incomingText = "", messages = { en: "", ur: "" }, preferredLang) => {
+  const lang = preferredLang || detectLanguage(incomingText);
+  return String(lang) === "ur" ? messages.ur || messages.en : messages.en || messages.ur;
 };
 
 const resolveCityFromMessage = (message = "", knownCities = []) => {
@@ -428,8 +488,12 @@ const getLocalHelpResponse = (message = "", role = "guest") => {
 
   if (asksListingHowTo) {
     return {
-      message:
-        "Property list karne ke liye: (1) Login karo, (2) Host dashboard/My Listing pe jao, (3) Add listing form fill karo — title, description, city, landmark, category, rent, images, (4) Submit karo. Agar chaho to main aapko rent suggest bhi kar sakta hoon city/category ke hisaab se.",
+      message: {
+        ur:
+          "Property list karne ke liye: (1) Login karo, (2) Host dashboard/My Listing pe jao, (3) Add listing form fill karo — title, description, city, landmark, category, rent, images, (4) Submit karo. Agar chaho to main aapko rent suggest bhi kar sakta hoon city/category ke hisaab se.",
+        en:
+          "To list a property: (1) Log in, (2) go to Host dashboard/My Listing, (3) fill Add listing form — title, description, city, landmark, category, rent, images, (4) Submit. I can also suggest rent based on city/category if you want.",
+      },
       quickHelp: {
         topic: "listing-how-to",
         role,
@@ -439,8 +503,12 @@ const getLocalHelpResponse = (message = "", role = "guest") => {
 
   if (asksCancel) {
     return {
-      message:
-        "Cancellation rule: Guest booking create hone ke 1 hour ke andar cancel kar sakta hai. Host cancellation anytime allowed hai.",
+      message: {
+        ur:
+          "Cancellation rule: Guest booking create hone ke 1 hour ke andar cancel kar sakta hai. Host cancellation anytime allowed hai.",
+        en:
+          "Cancellation rule: Guests can cancel within 1 hour of creating a booking. Hosts are allowed to cancel anytime.",
+      },
       quickHelp: {
         topic: "cancellation-policy",
         guestCancellationWindowHours: 1,
@@ -451,8 +519,12 @@ const getLocalHelpResponse = (message = "", role = "guest") => {
 
   if (asksBooking) {
     return {
-      message:
-        "Booking ke liye listing open karo, dates select karo, total rent check karo, phir reserve/confirm karo. Main aapko available listings bhi dikha sakta hoon city/category/budget ke hisaab se.",
+      message: {
+        ur:
+          "Booking ke liye listing open karo, dates select karo, total rent check karo, phir reserve/confirm karo. Main aapko available listings bhi dikha sakta hoon city/category/budget ke hisaab se.",
+        en:
+          "For booking: open the listing, select dates, check total rent, then reserve/confirm. I can also show available listings by city/category/budget.",
+      },
       quickHelp: {
         topic: "booking-flow",
       },
@@ -461,8 +533,12 @@ const getLocalHelpResponse = (message = "", role = "guest") => {
 
   if (asksSearch) {
     return {
-      message:
-        "Aap direct aise pooch sakte ho: 'show different farmhouse', 'rooms under 2000', 'available apartments in Lahore'. Main DB se direct results laa kar dikhata hoon.",
+      message: {
+        ur:
+          "Aap direct aise pooch sakte ho: 'show different farmhouse', 'rooms under 2000', 'available apartments in Lahore'. Main DB se direct results laa kar dikhata hoon.",
+        en:
+          "You can ask directly like: 'show different farmhouse', 'rooms under 2000', 'available apartments in Lahore'. I'll fetch direct results from the DB.",
+      },
       quickHelp: {
         topic: "search-help",
       },
@@ -470,8 +546,12 @@ const getLocalHelpResponse = (message = "", role = "guest") => {
   }
 
   return {
-    message:
-      "AI temporary unavailable hai, lekin main app help de sakta hoon: listing ka process, booking/cancellation rules, aur DB-based property search. Aap apna sawal short mein bhejein.",
+    message: {
+      ur:
+        "AI temporary unavailable hai, lekin main app help de sakta hoon: listing ka process, booking/cancellation rules, aur DB-based property search. Aap apna sawal short mein bhejein.",
+      en:
+        "AI is temporarily unavailable, but I can provide app help: listing process, booking/cancellation rules, and DB-based property search. Please send your question briefly.",
+    },
     quickHelp: {
       topic: "generic-help",
     },
@@ -486,8 +566,10 @@ const buildCancellationPolicyReply = async ({ userId, userRole }) => {
   const isHostQuery = String(userRole || "").toLowerCase() === "host";
   if (isHostQuery) {
     return {
-      message:
-        "Host ke liye cancellation allowed hai anytime. Guest ke liye 1 hour ka window hota hai booking create hone ke baad.",
+      message: {
+        ur: "Host ke liye cancellation allowed hai anytime. Guest ke liye 1 hour ka window hota hai booking create hone ke baad.",
+        en: "For hosts: cancellation is allowed anytime. For guests: there is a 1 hour window after booking creation.",
+      },
       policy: {
         guestCancellationWindowHours: 1,
         hostCanCancelAnytime: true,
@@ -497,8 +579,10 @@ const buildCancellationPolicyReply = async ({ userId, userRole }) => {
 
   if (!latestBooking?.createdAt) {
     return {
-      message:
-        "Guest policy: booking create hone ke baad 1 hour ke andar cancel kar sakte ho. 1 hour ke baad guest cancel nahi kar sakta.",
+      message: {
+        ur: "Guest policy: booking create hone ke baad 1 hour ke andar cancel kar sakte ho. 1 hour ke baad guest cancel nahi kar sakta.",
+        en: "Guest policy: guests can cancel within 1 hour after creating a booking. After 1 hour, guest cancellation is not allowed.",
+      },
       policy: {
         guestCancellationWindowHours: 1,
         hostCanCancelAnytime: true,
@@ -514,7 +598,10 @@ const buildCancellationPolicyReply = async ({ userId, userRole }) => {
   if (remainingMs <= 0) {
     const elapsedHours = Math.floor(elapsedMs / (60 * 60 * 1000));
     return {
-      message: `Aap guest ke taur par sirf 1 hour ke andar cancel kar sakte ho. Aapki latest booking ka cancellation window expire ho chuka hai (approx ${elapsedHours} hours guzar chuke).`,
+      message: {
+        ur: `Aap guest ke taur par sirf 1 hour ke andar cancel kar sakte ho. Aapki latest booking ka cancellation window expire ho chuka hai (approx ${elapsedHours} hours guzar chuke).`,
+        en: `As a guest you can cancel only within 1 hour. Your latest booking's cancellation window has expired (approx ${elapsedHours} hours ago).`,
+      },
       policy: {
         guestCancellationWindowHours: 1,
         hostCanCancelAnytime: true,
@@ -529,7 +616,10 @@ const buildCancellationPolicyReply = async ({ userId, userRole }) => {
   );
 
   return {
-    message: `Guest cancellation policy: 1 hour ke andar cancel allowed hai. Aapki latest booking ke liye approx ${remainingHours}h ${remainingMinutes}m baqi hain.`,
+    message: {
+      ur: `Guest cancellation policy: 1 hour ke andar cancel allowed hai. Aapki latest booking ke liye approx ${remainingHours}h ${remainingMinutes}m baqi hain.`,
+      en: `Guest cancellation policy: cancellation allowed within 1 hour. For your latest booking approx ${remainingHours}h ${remainingMinutes}m remain.`,
+    },
     policy: {
       guestCancellationWindowHours: 1,
       hostCanCancelAnytime: true,
@@ -540,9 +630,9 @@ const buildCancellationPolicyReply = async ({ userId, userRole }) => {
   };
 };
 
-// ============================================
+
 // CHATBOT CONTROLLER
-// ============================================
+
 // Handles all chatbot functionality:
 // 1. Process user messages through Gemini API
 // 2. Detect location and find nearby listings
@@ -559,9 +649,12 @@ export const processMessage = async (req, res) => {
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
     if (!message || !message.trim()) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Message cannot be empty" 
+      return res.status(400).json({
+        success: false,
+        message: chooseLangResponse(message, {
+            ur: "Message khali nahi ho sakta",
+            en: "Message cannot be empty",
+          }, getPreferredLang(req, message)),
       });
     }
 
@@ -573,7 +666,7 @@ export const processMessage = async (req, res) => {
 
       return res.status(200).json({
         success: true,
-        message: policyReply.message,
+        message: chooseLangResponse(message, policyReply.message || { en: String(policyReply.message), ur: String(policyReply.message) }, getPreferredLang(req, message)),
         policy: policyReply.policy,
         listings: [],
         count: 0,
@@ -584,7 +677,10 @@ export const processMessage = async (req, res) => {
     if (!GEMINI_API_KEY) {
       return res.status(500).json({
         success: false,
-        message: "API key not configured",
+        message: chooseLangResponse(message, {
+          ur: "API key configured nahi hai",
+          en: "API key not configured",
+        }, getPreferredLang(req, message)),
       });
     }
 
@@ -620,18 +716,25 @@ export const processMessage = async (req, res) => {
     const effectiveRole =
       userRole || personalizedUserContext?.roleHint || "guest";
 
-    const systemPrompt = `
-You are Smart Airbnb Assistant for ${effectiveRole} users.
+    // Determine user's preferred language for this request (explicit lang -> message detection -> headers)
+    const preferredLang = getPreferredLang(req, message); // 'en' or 'ur'
+    const preferredLangLabel = preferredLang === "ur" ? "Urdu" : "English";
 
-Rules you must follow:
-1) Always use provided DATABASE CONTEXT first before asking follow-up questions.
-2) If user asks for properties/rooms/farmhouse/price filters, directly provide available options from DB context.
-3) Do NOT repeatedly ask city/date/guest count when DB already has matching items.
-4) If user asks host pricing guidance, use market stats and provide a clear suggested range.
-5) If no exact results exist, suggest nearest alternatives from context.
-6) Keep answer natural, friendly, and concise (Urdu-English style allowed).
-7) Mention concrete counts/prices/cities from DB when possible.
-`;
+    const systemPrompt = `
+  You are Smart Airbnb Assistant for ${effectiveRole} users.
+
+  USER PREFERRED LANGUAGE: ${preferredLangLabel}
+
+  Rules you must follow:
+  1) Always use provided DATABASE CONTEXT first before asking follow-up questions.
+  2) If user asks for properties/rooms/farmhouse/price filters, directly provide available options from DB context.
+  3) Do NOT repeatedly ask city/date/guest count when DB already has matching items.
+  4) If user asks host pricing guidance, use market stats and provide a clear suggested range.
+  5) If no exact results exist, suggest nearest alternatives from context.
+  6) Keep answer natural, friendly, and concise.
+  7) IMPORTANT: Respond in ${preferredLangLabel}. If the user asked in English respond in English; if Urdu respond in Urdu. Do not translate both unless explicitly requested.
+  8) Mention concrete counts/prices/cities from DB when possible.
+  `;
 
     console.log('🔹 Calling Gemini API with message:', message);
 
@@ -661,9 +764,14 @@ Rules you must follow:
     console.log('🔹 Gemini API Response:', JSON.stringify(geminiData, null, 2));
 
     // ============================================
-    // ✅ IMPROVED RESPONSE PARSING WITH ERROR HANDLING
+    //  IMPROVED RESPONSE PARSING WITH ERROR HANDLING
     // ============================================
-    let botResponse = "I can help you with listing, booking, and smart suggestions from our database. Try: 'show farmhouses' or 'rooms under 2000'.";
+    let botResponse = chooseLangResponse(message, {
+      en:
+        "I can help you with listing, booking, and smart suggestions from our database. Try: 'show farmhouses' or 'rooms under 2000'.",
+      ur:
+        "Main aapki listing, booking, aur database suggestions mein madad kar sakta hoon. Koshish karein: 'show farmhouses' ya 'rooms under 2000'.",
+    }, getPreferredLang(req, message));
     
     if (geminiData?.candidates && geminiData.candidates.length > 0) {
       const candidate = geminiData.candidates[0];
@@ -674,13 +782,17 @@ Rules you must follow:
 
     // Check for API errors - use deterministic local fallback
     if (geminiData?.error) {
-      console.error('❌ Gemini API Error:', geminiData.error);
+      console.error(' Gemini API Error:', geminiData.error);
 
       const localHelp = getLocalHelpResponse(message, effectiveRole);
+      const reply = chooseLangResponse(message, localHelp.message || {
+        en: "AI is temporarily unavailable. Try again later.",
+        ur: "AI filhaal dastiyab nahi hai. Baad mein koshish karein.",
+      }, getPreferredLang(req, message));
 
       return res.status(200).json({
         success: true,
-        message: localHelp.message,
+        message: reply,
         quickHelp: localHelp.quickHelp,
         listings: formattedListings,
         count: formattedListings.length,
@@ -696,10 +808,13 @@ Rules you must follow:
       const maxPriceText = filters.maxPrice ? ` under Rs ${filters.maxPrice}` : "";
       const minPriceText = filters.minPrice ? ` above Rs ${filters.minPrice}` : "";
 
-      botResponse = `I checked the database but no listings found${categoryText}${cityText}${minPriceText}${maxPriceText}. Try a different filter and I’ll fetch it instantly.`;
+      botResponse = chooseLangResponse(message, {
+        en: `I checked the database but no listings found${categoryText}${cityText}${minPriceText}${maxPriceText}. Try a different filter and I’ll fetch it instantly.`,
+        ur: `Maine database check kiya lekin koi listings nahi mili${filters.category ? ` ${filters.category} ke liye` : ""}${filters.city ? ` ${filters.city} mein` : ""}${filters.minPrice ? ` ${filters.minPrice} se zyada` : ""}${filters.maxPrice ? ` ${filters.maxPrice} se kam` : ""}. Kisi aur filter try karein, main turant dhoondh kar bata doon ga.`,
+      }, getPreferredLang(req, message));
     }
 
-    console.log('✅ Bot Response:', botResponse);
+    console.log(' Bot Response:', botResponse);
 
     res.status(200).json({
       success: true,
@@ -736,7 +851,10 @@ export const getNearbyListings = async (req, res) => {
     if (!city && (!latitude || !longitude)) {
       return res.status(400).json({
         success: false,
-        message: "Please provide location (city or coordinates)"
+        message: chooseLangResponse(city || "", {
+            en: "Please provide location (city or coordinates)",
+            ur: "Barah-e-karam location provide karein (city ya coordinates)",
+          }, getPreferredLang(req, city || "")),
       });
     }
 
@@ -767,10 +885,12 @@ export const getNearbyListings = async (req, res) => {
           "";
 
         if (!searchCity) {
-          return res.status(200).json({
+            return res.status(200).json({
             success: true,
-            message:
-              "I couldn't determine your city exactly. Please type your city name (e.g., Lahore).",
+            message: chooseLangResponse(city || "", {
+              en: "I couldn't determine your city exactly. Please type your city name (e.g., Lahore).",
+              ur: "Main aapka shehar exact nahi bata saka. Barae mehrbani shehar ka naam type karein (misal Lahore).",
+            }, getPreferredLang(req, city || "")),
             listings: [],
           });
         }
@@ -778,8 +898,10 @@ export const getNearbyListings = async (req, res) => {
         console.log("Geolocation error:", geoError.message);
         return res.status(200).json({
           success: true,
-          message:
-            "Unable to detect exact location right now. Please type your city name.",
+          message: chooseLangResponse(city || "", {
+            en: "Unable to detect exact location right now. Please type your city name.",
+            ur: "Filhaal exact location detect nahi ho rahi. Barae mehrbani apna shehar type karein.",
+          }, getPreferredLang(req, city || "")),
           listings: [],
         });
       }
@@ -795,10 +917,12 @@ export const getNearbyListings = async (req, res) => {
       .limit(5); // Limit to top 5 listings
 
     if (listings.length === 0) {
+      const enMsg = `No listings found in ${searchCity}. Try another location!`;
+      const urMsg = `${searchCity} mein koi listings nahin mili. Kisi aur location try karein!`;
       return res.status(200).json({
         success: true,
-        message: `No listings found in ${searchCity}. Try another location!`,
-        listings: []
+        message: chooseLangResponse(searchCity || city || "", { en: enMsg, ur: urMsg }, getPreferredLang(req, searchCity || city || "")),
+        listings: [],
       });
     }
 
@@ -819,9 +943,12 @@ export const getNearbyListings = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: `Found ${listings.length} listings near ${searchCity}`,
+      message: chooseLangResponse(searchCity || city || "", {
+        en: `Found ${listings.length} listings near ${searchCity}`,
+        ur: `Mile ${listings.length} listings ${searchCity} ke qareeb`,
+      }, getPreferredLang(req, searchCity || city || "")),
       listings: formattedListings,
-      count: listings.length
+      count: listings.length,
     });
 
   } catch (error) {
@@ -877,8 +1004,11 @@ export const searchListings = async (req, res) => {
     if (listings.length === 0) {
       return res.status(200).json({
         success: true,
-        message: "No listings match your search criteria",
-        listings: []
+        message: chooseLangResponse(city || "", {
+          en: "No listings match your search criteria",
+          ur: "Aapke search ke mutabiq koi listing nahi mili",
+        }),
+        listings: [],
       });
     }
 
@@ -900,9 +1030,12 @@ export const searchListings = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: `Found ${listings.length} matching listings`,
+      message: chooseLangResponse(city || "", {
+        en: `Found ${listings.length} matching listings`,
+        ur: `Mile ${listings.length} mutabiq listings`,
+      }),
       listings: formattedListings,
-      count: listings.length
+      count: listings.length,
     });
 
   } catch (error) {
@@ -933,7 +1066,10 @@ export const getListingDetails = async (req, res) => {
     if (!listing) {
       return res.status(404).json({
         success: false,
-        message: "Listing not found"
+        message: chooseLangResponse("", {
+          en: "Listing not found",
+          ur: "Listing nazar nahi aayi",
+        }),
       });
     }
 
