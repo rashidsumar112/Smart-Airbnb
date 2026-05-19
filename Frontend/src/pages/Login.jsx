@@ -47,8 +47,8 @@ try{
 } 
 catch(error){
   setLoading(false)
-   toast.error(error.response.data.message)
-  console.log("Error during login",error)
+   toast.error(`${error.response.data.message} or Invalid Credentials`)
+  console.log("Error during login or Existing User",error)
 
 } 
 }

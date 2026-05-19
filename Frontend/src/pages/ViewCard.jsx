@@ -59,7 +59,7 @@ function ViewCard() {
   let { checkIn, setCheckIn,
     checkOut, setCheckOut,
     total, setTotal,
-    night, setNight, handleBooking, booking, setBooking
+    night, setNight, paymentMethod, setPaymentMethod, handleBooking, booking, setBooking
   } = useContext(BookingDataContext)
 
   // ============================================
@@ -531,6 +531,19 @@ function ViewCard() {
                 <input type="date" min={checkIn || minDate} id='checkout' className=' border-[#555656] border-2 w-[170px] h-[40px] rounded-[10px] bg-transparent px-[10px] text-[15px] md:text-[18px] ' required onChange={(e) => setCheckOut(e.target.value)} value={checkOut} />
               </div>
 
+              <div className='w-[90%] flex items-center justify-start gap-[10px] mt-[30px] md:justify-center flex-col md:flex-row md:items-start'>
+                <label htmlFor="paymentMethod" className='text-[18px] md:text-[20]'>Payment</label>
+                <select
+                  id='paymentMethod'
+                  className='border-[#555656] border-2 w-[220px] h-[40px] rounded-[10px] bg-transparent px-[10px] text-[15px] md:text-[18px]'
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                >
+                  <option value='stripe'>Stripe</option>
+                  <option value='cash'>Cash</option>
+                </select>
+              </div>
+
               {bookingError && (
                 <p className='w-[90%] text-center text-[13px] text-[red] font-semibold mt-[10px]'>
                   {bookingError}
@@ -538,13 +551,13 @@ function ViewCard() {
               )}
 
               <div className='w-[100%] flex items-center justify-center text-nowrap'>
-                
+
                 <button
                   type="submit"
                   className='px-[80px] py-[10px] bg-blue-600 text-white text-[18px] md:px-[100px] rounded-lg mt-[30px]'
                   disabled={booking}
                 >
-                  {booking ? "Booking..." : "Book Now"}
+                  {booking ? "Booking..." : paymentMethod === 'cash' ? "Confirm Booking" : "Proceed to Payment"}
                 </button>
               </div>
 

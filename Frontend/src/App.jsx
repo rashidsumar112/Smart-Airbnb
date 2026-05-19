@@ -11,6 +11,7 @@ import MyListing from './pages/MyListing'
 import ViewCard from './pages/ViewCard'
 import MyBooking from './pages/MyBooking'
 import Booked from './pages/Booked'
+import Verify from './pages/Verify'
 import { ToastContainer, toast } from 'react-toastify'
 import Footer from './Components/Footer'
 import Support from './pages/Support'
@@ -60,7 +61,10 @@ function App() {
         <Route path='/mybooking'
           element={userData != null ? <MyBooking /> : <Navigate to={"/"} />} />
         <Route path='/booked'
-          element={userData != null ? <Booked /> : <Navigate to={"/"} />} />
+          element={<Booked />} />
+
+        <Route path='/verify'
+          element={<Verify />} />
 
         <Route path='/support' element={<Support />} />
         <Route path='/help-center' element={<HelpCenter />} />

@@ -57,8 +57,8 @@ try{
 } 
 catch(error){
   setLoading(false)
-   toast.error("SignUp Error")
-  console.log("Error during signup",error)
+   toast.error("SignUp Error or  Existing User")
+  console.log("Error during signup or Existing User",error)
 
 } 
 }

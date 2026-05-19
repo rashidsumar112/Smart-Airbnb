@@ -6,8 +6,13 @@ export const cleanupExpiredBookings = async () => {
   const now = new Date();
 
   const expiredBookings = await Booking.find({
-    status: "booked",
-    checkOut: { $lt: now },
+    $or: [
+      { status: "booked", checkOut: { $lt: now } },
+      {
+        status: "pending_payment",
+        createdAt: { $lt: new Date(now.getTime() - 60 * 60 * 1000) },
+      },
+    ],
   }).select("_id host guest listing");
 
   if (!expiredBookings.length) {
@@ -15,14 +20,18 @@ export const cleanupExpiredBookings = async () => {
   }
 
   const bookingIds = expiredBookings.map((booking) => booking._id);
-  const listingIds = [...new Set(expiredBookings.map((booking) => String(booking.listing)))];
-  const hostIds = [...new Set(expiredBookings.map((booking) => String(booking.host)))];
+  const listingIds = [
+    ...new Set(expiredBookings.map((booking) => String(booking.listing))),
+  ];
+  const hostIds = [
+    ...new Set(expiredBookings.map((booking) => String(booking.host))),
+  ];
   const guestIds = [
     ...new Set(
       expiredBookings
         .map((booking) => booking.guest)
         .filter(Boolean)
-        .map((id) => String(id))
+        .map((id) => String(id)),
     ),
   ];
 
@@ -30,7 +39,7 @@ export const cleanupExpiredBookings = async () => {
     for (const listingId of listingIds) {
       const remainingBooking = await Booking.findOne({
         listing: listingId,
-        status: "booked",
+        status: { $in: ["booked", "pending_payment"] },
         checkOut: { $gte: now },
       }).select("guest");
 
@@ -44,14 +53,14 @@ export const cleanupExpiredBookings = async () => {
   if (hostIds.length) {
     await User.updateMany(
       { _id: { $in: hostIds } },
-      { $pull: { booking: { $in: bookingIds } } }
+      { $pull: { booking: { $in: bookingIds } } },
     );
   }
 
   if (guestIds.length) {
     await User.updateMany(
       { _id: { $in: guestIds } },
-      { $pull: { booking: { $in: bookingIds } } }
+      { $pull: { booking: { $in: bookingIds } } },
     );
   }
 
