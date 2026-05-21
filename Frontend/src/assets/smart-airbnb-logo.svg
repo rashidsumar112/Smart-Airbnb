@@ -1,0 +1,18 @@
+<svg width="240" height="76" viewBox="0 0 240 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="240" y2="76" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.68"/>
+      <stop offset="1" stop-color="#F8FBFF" stop-opacity="0.46"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="16" y1="12" x2="48" y2="52" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#4F46E5"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="238" height="74" rx="22" fill="url(#bg)" stroke="white" stroke-opacity="0.75"/>
+  <circle cx="32" cy="38" r="18" fill="url(#accent)" opacity="0.95"/>
+  <path d="M22 38.5L32 29L42 38.5V49H36V41.5H28V49H22V38.5Z" fill="white"/>
+  <path d="M28 29.5L32 26L36 29.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="62" y="36" fill="#0F172A" font-family="Inter, Arial, Helvetica, sans-serif" font-size="20" font-weight="800" letter-spacing="0.3">Smart Airbnb</text>
+  <text x="62" y="55" fill="#475569" font-family="Inter, Arial, Helvetica, sans-serif" font-size="10" font-weight="600" letter-spacing="2.8">PROPERTY • RENTING • STAYS</text>
+</svg>

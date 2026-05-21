@@ -1,8 +1,9 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useMemo } from 'react'
 import { IoArrowBackCircle } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
 import { userDataContext } from '../Context/UserContext';
 import Card from '../Components/Card';
+import { listDataContext } from '../Context/ListContext';
 
 
 
@@ -10,6 +11,13 @@ function MyListing() {
 
   let navigate = useNavigate()
   let { userData } = useContext(userDataContext)
+  let { getlist } = useContext(listDataContext)
+
+  const myListings = useMemo(() => {
+    if (!userData?._id) return []
+
+    return (getlist || []).filter((list) => String(list.host) === String(userData._id))
+  }, [getlist, userData?._id])
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -33,8 +41,8 @@ function MyListing() {
 
       <div className='w-[100%] h-[90%] flex items-center justify-center gap-[20px] flex-wrap mt-[30px]'>
 
-        {userData?.listing?.length > 0 ? (
-          userData.listing.map((list) => (
+        {myListings.length > 0 ? (
+          myListings.map((list) => (
             <Card
               key={list._id}
               title={list.title}

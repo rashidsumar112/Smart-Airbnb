@@ -475,7 +475,7 @@ function ViewCard() {
 
 
 
-          <form className='max-w-[450px] w-[90%] h-[450px] overflow-auto bg-[#aee884] p-[20px] rounded-lg flex items-center justify-start flex-col gap-[10px]  order-[1px] border-[#dedddd] ' onSubmit={(e) => {
+          <form className='max-w-[450px] w-[90%] h-[450px] overflow-auto rounded-[28px] border border-white/70 bg-white/85 p-[20px] flex items-center justify-start flex-col gap-[10px] shadow-[0_20px_80px_rgba(15,23,42,0.10)] backdrop-blur-xl' onSubmit={(e) => {
             e.preventDefault();
 
             if (!checkIn || !checkOut) {
@@ -572,7 +572,7 @@ function ViewCard() {
           </form>
 
 
-          <div className='max-w-[450px] w-[90%] h-[450px] bg-[#aee884] p-[20px] rounded-lg flex items-center justify-center flex-col gap-[10px] border-[1px] border-[#e2e1e1]'>
+          <div className='max-w-[450px] w-[90%] h-[450px] rounded-[28px] border border-white/70 bg-white/85 p-[20px] flex items-center justify-center flex-col gap-[10px] shadow-[0_20px_80px_rgba(15,23,42,0.10)] backdrop-blur-xl'>
 
             <div className='w-[95%] h-[35%] border-[1px]  border-[#abaaaa] rounded-lg flex justify-center items-center gap-[8px] p-[20px]  overflow-hidden '>
               <div className='w-[70px] h-[90px] flex items-center justify-center flex-shrink-0 rounded-lg md:w-[100px] md:h-[100px]'>

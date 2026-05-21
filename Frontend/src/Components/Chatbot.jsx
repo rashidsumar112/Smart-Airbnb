@@ -13,7 +13,7 @@ import axios from 'axios';
 function Chatbot({ isOpen, onClose }) {
 
   // STATE MANAGEMENT
- 
+
 
   // Messages state - stores chat history
   // Each message has: id, text, sender ('user' or 'bot'), timestamp
@@ -40,15 +40,15 @@ function Chatbot({ isOpen, onClose }) {
   const { userData } = useContext(userDataContext);
   const navigate = useNavigate();
 
- 
+
   //  CHATBOT LISTINGS STATE (ADDITION)
 
   // Stores listing cards that chatbot should show in chat panel
   const [listingResults, setListingResults] = useState([]);
 
- 
+
   // AUTO-SCROLL FUNCTIONALITY
- 
+
   // Automatically scroll to bottom when new messages arrive
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -58,10 +58,10 @@ function Chatbot({ isOpen, onClose }) {
     scrollToBottom();
   }, [messages]);
 
-  
+
   // SEND MESSAGE HANDLER
 
-  
+
   const handleSendMessage = async () => {
     if (inputValue.trim() === '') return;
 
@@ -150,9 +150,9 @@ function Chatbot({ isOpen, onClose }) {
         return;
       }
 
-     
+
       //  FEATURE: GENERAL GEMINI ASSISTANT FLOW (ADDITION)
-      
+
       // For booking/listing/support messages (host + guest)
       const hasHostListings = Array.isArray(userData?.listing) && userData.listing.length > 0;
       const inferredRole = hasHostListings ? 'host' : 'guest';
@@ -240,9 +240,9 @@ function Chatbot({ isOpen, onClose }) {
   // If user is not logged in, show login prompt
   if (!userData) {
     return (
-      <div className="fixed bottom-20 right-6 z-[50] md:bottom-24 md:right-8">
-        <div className="w-[90vw] max-w-[450px] bg-white rounded-3xl shadow-2xl overflow-hidden animate-slideUp border-2 border-[#aee884]/20">
-          <div className="bg-gradient-to-r from-[#aee884] via-[#9fd66e] to-[#8fd966] px-6 py-5 flex items-center justify-between shadow-md">
+      <div className="fixed bottom-20 right-6 z-[70] md:bottom-24 md:right-8">
+        <div className="w-[90vw] max-w-[450px] bg-white rounded-3xl shadow-2xl overflow-hidden animate-slideUp border-2 border-sky-200/60">
+          <div className="bg-gradient-to-r from-sky-500 via-indigo-500 to-violet-500 px-6 py-5 flex items-center justify-between shadow-md">
             <div>
               <h2 className="text-2xl font-bold text-gray-900">🏠 Smart Airbnb</h2>
               <p className="text-xs text-gray-700 mt-1">Your Personal Assistant</p>
@@ -261,7 +261,7 @@ function Chatbot({ isOpen, onClose }) {
                 onClose();
                 navigate('/login');
               }}
-              className="w-full bg-[#aee884] hover:bg-[#98d56f] text-gray-900 font-semibold py-2 px-4 rounded-lg transition"
+              className="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 px-4 rounded-lg transition"
             >
               Go to Login
             </button>
@@ -277,8 +277,8 @@ function Chatbot({ isOpen, onClose }) {
   return (
     // ============================================
     // OUTER CONTAINER - Fixed position, bottom-right
-    
-    <div className="fixed bottom-20 right-6 z-[50] md:bottom-24 md:right-8">
+
+    <div className="fixed bottom-20 right-6 z-[70] md:bottom-24 md:right-8">
 
       {/* 
         ============================================
@@ -286,14 +286,14 @@ function Chatbot({ isOpen, onClose }) {
         ============================================
        
       */}
-      <div className="w-[90vw] max-w-[450px] h-[65vh] max-h-[580px] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-slideUp border-2 border-[#aee884]/20">
+      <div className="w-[90vw] max-w-[450px] h-[65vh] max-h-[580px] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-slideUp border-2 border-sky-200/60">
 
         {/* 
           ============================================
           HEADER SECTION - Green Gradient
       
         */}
-        <div className="bg-gradient-to-r from-[#aee884] via-[#9fd66e] to-[#8fd966] px-6 py-5 flex items-center justify-between shadow-md">
+        <div className="bg-gradient-to-r from-sky-500 via-indigo-500 to-violet-500 px-6 py-5 flex items-center justify-between shadow-md">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">🏠 Smart Airbnb</h2>
             <p className="text-xs text-gray-700 mt-1">Your Personal Assistant</p>
@@ -325,12 +325,12 @@ function Chatbot({ isOpen, onClose }) {
             >
               <div
                 className={`max-w-xs px-5 py-3 rounded-2xl ${message.sender === 'user'
-                    // USER MESSAGE STYLING:
-                   
-                    ? 'bg-gradient-to-r from-[#aee884] to-[#9fd66e] text-gray-900 rounded-br-none shadow-md font-medium'
-                    // BOT MESSAGE STYLING:
-                  
-                    : 'bg-white text-gray-800 border-2 border-[#aee884]/30 rounded-bl-none shadow-sm'
+                  // USER MESSAGE STYLING:
+
+                  ? 'bg-gradient-to-r from-sky-500 to-indigo-500 text-white rounded-br-none shadow-md font-medium'
+                  // BOT MESSAGE STYLING:
+
+                  : 'bg-white text-gray-800 border-2 border-sky-200/60 rounded-bl-none shadow-sm'
                   }`}
               >
                 <p className="text-sm md:text-base leading-relaxed">{message.text}</p>
@@ -352,11 +352,11 @@ function Chatbot({ isOpen, onClose }) {
           */}
           {isLoading && (
             <div className="flex justify-start animate-fadeInMessage">
-              <div className="bg-white text-gray-800 border-2 border-[#aee884]/30 rounded-2xl rounded-bl-none px-5 py-4 shadow-sm">
+              <div className="bg-white text-gray-800 border-2 border-sky-200/60 rounded-2xl rounded-bl-none px-5 py-4 shadow-sm">
                 <div className="flex space-x-3">
-                  <div className="w-3 h-3 bg-[#aee884] rounded-full animate-bounce"></div>
-                  <div className="w-3 h-3 bg-[#aee884] rounded-full animate-bounce delay-100"></div>
-                  <div className="w-3 h-3 bg-[#aee884] rounded-full animate-bounce delay-200"></div>
+                  <div className="w-3 h-3 bg-sky-500 rounded-full animate-bounce"></div>
+                  <div className="w-3 h-3 bg-sky-500 rounded-full animate-bounce delay-100"></div>
+                  <div className="w-3 h-3 bg-sky-500 rounded-full animate-bounce delay-200"></div>
                 </div>
               </div>
             </div>
@@ -376,7 +376,7 @@ function Chatbot({ isOpen, onClose }) {
               {listingResults.map((listing) => (
                 <div
                   key={listing.id}
-                  className="bg-white border-2 border-[#aee884]/30 rounded-xl p-3 shadow-sm"
+                  className="bg-white border-2 border-sky-200/60 rounded-xl p-3 shadow-sm"
                 >
                   <img
                     src={listing.images?.[0]}
@@ -399,7 +399,7 @@ function Chatbot({ isOpen, onClose }) {
                   */}
                   <button
                     onClick={() => handleReserveFromChat(listing.id)}
-                    className="mt-2 w-full bg-[#aee884] hover:bg-[#98d56f] text-gray-900 font-semibold py-2 rounded-lg transition"
+                    className="mt-2 w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 rounded-lg transition"
                   >
                     Reserve
                   </button>
@@ -415,23 +415,23 @@ function Chatbot({ isOpen, onClose }) {
           ============================================
          
         */}
-        <div className="border-t-2 border-[#aee884]/20 p-5 bg-gradient-to-b from-white to-gray-50 shadow-lg">
+        <div className="border-t-2 border-sky-200/60 p-5 bg-gradient-to-b from-white to-gray-50 shadow-lg">
           <div className="flex gap-3 items-center">
-           
+
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Type your message..."
-              className="flex-1 px-5 py-3 border-2 border-[#aee884]/30 rounded-full outline-none focus:border-[#aee884] focus:ring-3 focus:ring-[#aee884]/20 transition text-gray-800 placeholder-gray-500 bg-white"
+              className="flex-1 px-5 py-3 border-2 border-sky-200/60 rounded-full outline-none focus:border-sky-500 focus:ring-3 focus:ring-sky-500/20 transition text-gray-800 placeholder-gray-500 bg-white"
             />
 
-           
+
             <button
               onClick={handleSendMessage}
               disabled={inputValue.trim() === '' || isLoading}
-              className="bg-gradient-to-r from-[#aee884] to-[#9fd66e] hover:from-[#9fd66e] hover:to-[#8fd966] disabled:from-gray-300 disabled:to-gray-300 text-gray-900 font-bold p-3 rounded-full transition transform hover:scale-110 active:scale-95 duration-200 flex items-center justify-center shadow-md"
+              className="bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 disabled:from-gray-300 disabled:to-gray-300 text-white font-bold p-3 rounded-full transition transform hover:scale-110 active:scale-95 duration-200 flex items-center justify-center shadow-md"
             >
               <MdSend className="w-5 h-5" />
             </button>
