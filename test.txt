@@ -1,0 +1,36 @@
+Simple test cases (manual or to convert into automated tests):
+
+1. User Signup
+- POST /api/auth/signup with valid name, email, password -> 201 created, user saved
+- Signup with existing email -> 400 / error
+
+2. User Login
+- POST /api/auth/login with correct credentials -> returns token/cookie
+- Login with wrong password -> 401 / error
+
+3. Get Current User
+- GET /api/user (authenticated) -> returns user data
+
+4. Create Listing
+- POST /api/listing (authenticated) with required fields -> 201 created
+
+5. Get Listings
+- GET /api/listing -> returns list of listings
+
+6. Booking
+- POST /api/booking (authenticated) -> creates booking
+- GET /api/booking/user -> returns user's bookings
+
+7. Chatbot endpoints
+- POST /api/chatbot/message -> returns assistant reply
+- GET /api/chatbot/nearby?lat=..&lng=.. -> returns nearby listings
+
+8. File upload (images)
+- Test multipart/form-data endpoints that accept images (multer)
+
+9. Authorization checks
+- Access protected routes without token -> 401
+
+Notes:
+- For automated tests, consider using Jest + Supertest and mock MongoDB (or use test DB connection).
+- If you want, I can convert these into runnable Jest tests next.
