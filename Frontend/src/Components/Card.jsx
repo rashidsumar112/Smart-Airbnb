@@ -167,37 +167,32 @@ function Card({ title, landmark, image1, image2, image3, rent, city, id, ratings
 
       {popUp &&
 
-        <div className='absolute left-[13px] top-[110px] h-[100px] w-[300px] rounded-xl border border-white/70 bg-white/95 shadow-xl'>
-          <div className='flex h-[50%] w-[100%] items-start justify-center overflow-auto rounded-lg p-[10px] text-[20px] text-slate-700'>Booking Cancle!</div>
+        <div className='fixed inset-0 z-[999] flex items-center justify-center bg-black/25 p-4 backdrop-blur-sm' onClick={() => setPopUp(false)}>
+          <div className='w-[min(92vw,320px)] rounded-xl border border-white/70 bg-white/95 p-[14px] shadow-2xl' onClick={(e) => e.stopPropagation()}>
+            <div className='flex w-[100%] items-start justify-center overflow-auto rounded-lg p-[10px] text-[20px] text-slate-700'>Booking Cancle!</div>
 
-          {/* 🔧 IMPORTANT: The 'id' parameter here is the LISTING ID (not booking ID)
-      Backend will:
-      1. Find the booking document using this listing ID
-      2. Delete booking from Booking collection
-      3. Remove booking._id from both host AND guest users
-      4. Set listing.isBooked = false
-      5. Clear the guest reference from listing
-      This ensures complete cleanup from ALL collections in MongoDB
-  */}
+            <div className='flex w-[100%] items-start justify-center gap-[10px] text-[18px] font-semibold text-slate-500'>
+              Are You Sure?
+              <button className='rounded-lg bg-rose-600 px-[20px] text-[white] hover:bg-rose-700' onClick={() => {
+                cancleBooking(bookingId || id); setPopUp(false)
+              }}>Yes</button>
 
-          <div className='flex h-[50%] w-[100%] items-start justify-center gap-[10px] text-[18px] font-semibold text-slate-500'>
-            Are You Sure? <button className='rounded-lg bg-rose-600 px-[20px] text-[white] hover:bg-rose-700' onClick={() => {
-              cancleBooking(bookingId || id); setPopUp(false)
-            }}>Yes</button>
-
-            <button className='rounded-lg bg-slate-800 px-[10px] text-[white] hover:bg-slate-700' onClick={() => setPopUp(false)} >No</button>
+              <button className='rounded-lg bg-slate-800 px-[10px] text-[white] hover:bg-slate-700' onClick={() => setPopUp(false)} >No</button>
+            </div>
           </div>
         </div>}
 
       {/* 🚫 ⏰ NEW: Error popup when guest tries to cancel after 1 hour deadline */}
       {errorPopUp &&
-        <div className='absolute left-[13px] top-[110px] h-[120px] w-[300px] rounded-xl border border-rose-200 bg-rose-50 shadow-xl'>
-          <div className='flex h-[60%] w-[100%] items-start justify-center overflow-auto rounded-lg p-[10px] text-[16px] font-bold text-rose-800'>
-            Cancellation Period Expired!
-          </div>
-          <div className='flex h-[40%] w-[100%] items-center justify-center gap-[5px] p-[5px] text-[13px] text-rose-800'>
-            <span>You can only cancel within 1 hour of booking</span>
-            <button className='rounded-lg bg-rose-600 px-[15px] text-[12px] text-[white] hover:bg-rose-700' onClick={() => setErrorPopUp(false)}>OK</button>
+        <div className='fixed inset-0 z-[999] flex items-center justify-center bg-black/25 p-4 backdrop-blur-sm' onClick={() => setErrorPopUp(false)}>
+          <div className='w-[min(92vw,320px)] rounded-xl border border-rose-200 bg-rose-50 p-[14px] shadow-2xl' onClick={(e) => e.stopPropagation()}>
+            <div className='flex w-[100%] items-start justify-center overflow-auto rounded-lg p-[10px] text-[16px] font-bold text-rose-800'>
+              Cancellation Period Expired!
+            </div>
+            <div className='flex w-[100%] items-center justify-center gap-[5px] p-[5px] text-[13px] text-rose-800'>
+              <span>You can only cancel within 1 hour of booking</span>
+              <button className='rounded-lg bg-rose-600 px-[15px] text-[12px] text-[white] hover:bg-rose-700' onClick={() => setErrorPopUp(false)}>OK</button>
+            </div>
           </div>
         </div>}
 
